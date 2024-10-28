@@ -196,14 +196,15 @@ const Terminal1 = () => {
   };
 
   const updatedAssignments = calculateEstimatedTimes(assignments);
-  const updatedAllAssignments = calculateEstimatedTimes(allAssignments);
-
+  const updatedAllAssignments = {
+    terminal1: calculateEstimatedTimes(allAssignments.filter(a => a.terminal === 'terminal1')),
+    terminal2: calculateEstimatedTimes(allAssignments.filter(a => a.terminal === 'terminal2'))
+  };
   // Filter assignments to show only queued from terminal1 and departed from terminal2
-  const filteredAssignments = updatedAllAssignments.filter(
-    (assignment) =>
-      (assignment.status === 'queued' && assignment.terminal === 'terminal1') ||
-      (assignment.status === 'departed' && assignment.terminal === 'terminal2')
-  );
+  const filteredAssignments = [
+    ...updatedAllAssignments.terminal1.filter(a => a.status === 'queued'),
+    ...updatedAllAssignments.terminal2.filter(a => a.status === 'departed')
+  ];
 
   return (
     <div className="p-6 bg-gray-900 text-white min-h-screen">

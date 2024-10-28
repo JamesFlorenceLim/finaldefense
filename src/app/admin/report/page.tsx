@@ -4,6 +4,10 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const ReportPage = () => {
     const [vanDriverOperators, setVanDriverOperators] = useState<any[]>([]);
@@ -13,6 +17,7 @@ const ReportPage = () => {
     const [averageTripDuration, setAverageTripDuration] = useState<number>(0);
     const [startDate, setStartDate] = useState<string>('');
     const [endDate, setEndDate] = useState<string>('');
+    const [selectedDriverName, setSelectedDriverName] = useState<string>('');
 
     useEffect(() => {
         const fetchVanDriverOperators = async () => {
@@ -27,22 +32,33 @@ const ReportPage = () => {
             const fetchAssignmentHistory = async () => {
                 const response = await axios.get(`/api/report?type=assignmentHistory&vanDriverOperatorId=${selectedVanDriverOperator}&startDate=${startDate}&endDate=${endDate}`);
                 const history = response.data;
+                console.log('Assignment History:', history); // Log the response data
                 setAssignmentHistory(history);
-                countRoundTrips(history);
+                const roundTripData = countRoundTrips(history);
                 setAverageTripDuration(calculateAverageTripDuration(history));
+                setRoundTrips(roundTripData.length);
+
+                // Set the selected driver's name
+                const selectedDriver = vanDriverOperators.find(operator => operator.id === selectedVanDriverOperator);
+                if (selectedDriver) {
+                    setSelectedDriverName(`${selectedDriver.Driver.firstname} ${selectedDriver.Driver.lastname}`);
+                }
             };
             fetchAssignmentHistory();
         }
     }, [selectedVanDriverOperator, startDate, endDate]);
 
     const countRoundTrips = (history: any[]) => {
-        let count = 0;
+        const roundTripData = [];
         for (let i = 0; i < history.length - 1; i++) {
             if (history[i].terminal === 'terminal1' && history[i + 1].terminal === 'terminal2') {
-                count++;
+                roundTripData.push({
+                    start: new Date(history[i].timestamp).toLocaleString(),
+                    end: new Date(history[i + 1].timestamp).toLocaleString(),
+                });
             }
         }
-        setRoundTrips(count);
+        return roundTripData;
     };
 
     const calculateAverageTripDuration = (history: any[]) => {
@@ -71,8 +87,34 @@ const ReportPage = () => {
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-            pdf.save('report.pdf');
+            const currentDate = new Date().toISOString().split('T')[0];
+            
+            
+            pdf.save(`report_${currentDate}.pdf`);
         }
+    };
+
+    const roundTripData = countRoundTrips(assignmentHistory);
+
+    // Group trips by day
+    const tripsPerDay = roundTripData.reduce((acc: { [key: string]: number }, trip) => {
+        const date = new Date(trip.start).toISOString().split('T')[0];
+        if (!acc[date]) {
+            acc[date] = 0;
+        }
+        acc[date]++;
+        return acc;
+    }, {});
+
+    const roundTripGraphData = {
+        labels: Object.keys(tripsPerDay),
+        datasets: [
+            {
+                label: 'Trips per Day',
+                data: Object.values(tripsPerDay),
+                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+            },
+        ],
     };
 
     return (
@@ -114,7 +156,10 @@ const ReportPage = () => {
 
             {selectedVanDriverOperator && (
                 <section id="report-content" className="mb-8">
-                    <h2 className="text-2xl font-semibold mb-4 text-gray-700">Assignment History</h2>
+                    <h2 className="text-2xl font-semibold mb-4 text-gray-700">Trip History for {selectedDriverName}</h2>
+                    
+                        <h2 className="font-medium text-gray-900">Date Range: {startDate} to {endDate}</h2>
+                    
                     <table className="min-w-full bg-white shadow-md rounded-lg">
                         <thead>
                             <tr>
@@ -138,6 +183,9 @@ const ReportPage = () => {
                     </div>
                     <div className="mt-4">
                         <span className="font-medium text-gray-900">Average Trip Duration: {averageTripDuration.toFixed(2)} minutes</span>
+                    </div>
+                    <div className="mt-8" style={{ maxWidth: '600px', margin: '0 auto' }}>
+                        <Bar data={roundTripGraphData} />
                     </div>
                 </section>
             )}

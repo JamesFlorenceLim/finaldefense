@@ -184,7 +184,10 @@ const Terminal1 = () => {
     const currentTime = new Date().toISOString(); // Store the arrival time in ISO format
 
     try {
-      // Update status to idle with the arrival time
+      // Update status to arrived with the arrival time
+      await updateAssignment(id, 'arrived', currentTerminal, undefined, currentTime);
+
+      // Update status to idle
       await updateAssignment(id, 'idle', currentTerminal, undefined, currentTime);
 
       // Refresh assignments after confirming arrival
@@ -197,7 +200,10 @@ const Terminal1 = () => {
   };
 
   const updatedAssignments = calculateEstimatedTimes(assignments);
-  const updatedAllAssignments = calculateEstimatedTimes(allAssignments);
+  const updatedAllAssignments = {
+    terminal1: calculateEstimatedTimes(allAssignments.filter(a => a.terminal === 'terminal1')),
+    terminal2: calculateEstimatedTimes(allAssignments.filter(a => a.terminal === 'terminal2'))
+  };
 
   return (
     <div className="p-6 ml-64">
@@ -205,88 +211,86 @@ const Terminal1 = () => {
       <div className="text-center mb-6">
         <span className="text-xl font-semibold text-gray-700">Current Time: {currentTime}</span>
       </div>
-      
-      
 
       <section className="mb-8">
-  <h2 className="text-2xl font-semibold mb-4 text-gray-700">Vans Across Terminals</h2>
-  <div className="flex flex-col overflow-x-auto sm:-mx-6 lg:-mx-8">
-    <div className="inline-block min-w-full overflow-x-auto relative">
-      <table className="bg-white rounded-lg mx-auto  overflow-hidden" style={{ tableLayout: 'fixed' }}>
-        <thead className="bg-blue-400 text-xs">
-          <tr className="text-white">
-            <th className="px-4 py-2 w-32 text-left font-normal rounded-l-lg">Driver</th>
-            <th className="px-4 py-2 w-32 text-left font-normal">Plate Number</th>
-            <th className="px-4 py-2 w-32 text-left font-normal">Terminal</th>
-            <th className="px-4 py-2 w-32 text-left font-normal">Queued At</th>
-            <th className="px-4 py-2 w-32 text-left font-normal">Estimated Departure</th>
-            <th className="px-4 py-2 w-32 text-left font-normal">Departed At</th>
-            <th className="px-4 py-2 w-32 text-left font-normal">Estimated Arrival</th>
-            <th className="px-4 py-2 w-32 text-left font-normal">Arrived At</th>
-            <th className="px-4 py-2 w-32 text-left font-normal">Status</th>
-            <th className="px-4 py-2 w-32 text-center font-normal rounded-r-lg">Actions</th>
-          </tr>
-        </thead>
-        <tbody className="text-xs">
-          {updatedAllAssignments.length === 0 ? (
-            <tr>
-              <td colSpan={10} className="px-4 py-52 text-center text-lg font-medium text-gray-400">
-                No Vans Across Terminals
-              </td>
-            </tr>
-          ) : (
-            updatedAllAssignments.map((assignment: any) => {
-              const isArrivalTimeReached = new Date().getTime() >= new Date(assignment.estimatedArrivalTime).getTime();
-              return (
-                <tr key={assignment.id} className="border-b">
-                  <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>
-                    {assignment.VanDriverOperator.Driver.firstname.toUpperCase()} {assignment.VanDriverOperator.Driver.lastname.toUpperCase()}
-                  </td>
-                  <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>
-                    {assignment.VanDriverOperator.Van.plate_number.toUpperCase()}
-                  </td>
-                  <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>
-                    {getDestination(assignment.terminal).toUpperCase()}
-                  </td>
-                  <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>
-                    {assignment.queued_at ? new Date(assignment.queued_at).toLocaleTimeString().toUpperCase() : 'N/A'}
-                  </td>
-                  <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>
-                    {assignment.estimatedDepartureTime.toUpperCase()}
-                  </td>
-                  <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>
-                    {assignment.departureTime ? new Date(assignment.departureTime).toLocaleTimeString().toUpperCase() : 'N/A'}
-                  </td>
-                  <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>
-                    {assignment.estimatedArrivalTime.toUpperCase()}
-                  </td>
-                  <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>
-                    {assignment.arrivalTime ? new Date(assignment.arrivalTime).toLocaleTimeString().toUpperCase() : 'N/A'}
-                  </td>
-                  <td className="px-4 py-2 text-center">
-                    <span className={`${assignment.status === 'queued' ? 'text-green-500' : assignment.status === 'departed' ? 'text-red-500' : ''}`}>
-                      {assignment.status.toUpperCase()}
-                    </span>
-                  </td>
-                  <td className="px-4 py-2 text-center">
-                    {(assignment.status === 'departed' || assignment.status === 'arrived') && (assignment.terminal === 'terminal1' || assignment.terminal === 'terminal2') && (
-                      <button
-                        className="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600"
-                        onClick={() => handleConfirmArrival(assignment.id)}
-                      >
-                        ARRIVED
-                      </button>
-                    )}
-                  </td>
+        <h2 className="text-2xl font-semibold mb-4 text-gray-700">Vans Across Terminals</h2>
+        <div className="flex flex-col overflow-x-auto sm:-mx-6 lg:-mx-8">
+          <div className="inline-block min-w-full overflow-x-auto relative">
+            <table className="bg-white rounded-lg mx-auto overflow-hidden" style={{ tableLayout: 'fixed' }}>
+              <thead className="bg-blue-400 text-xs">
+                <tr className="text-white">
+                  <th className="px-4 py-2 w-32 text-left font-normal rounded-l-lg">Driver</th>
+                  <th className="px-4 py-2 w-32 text-left font-normal">Plate Number</th>
+                  <th className="px-4 py-2 w-32 text-left font-normal">Terminal</th>
+                  <th className="px-4 py-2 w-32 text-left font-normal">Queued At</th>
+                  <th className="px-4 py-2 w-32 text-left font-normal">Estimated Departure</th>
+                  <th className="px-4 py-2 w-32 text-left font-normal">Departed At</th>
+                  <th className="px-4 py-2 w-32 text-left font-normal">Estimated Arrival</th>
+                  <th className="px-4 py-2 w-32 text-left font-normal">Arrived At</th>
+                  <th className="px-4 py-2 w-32 text-left font-normal">Status</th>
+                  <th className="px-4 py-2 w-32 text-center font-normal rounded-r-lg">Actions</th>
                 </tr>
-              );
-            })
-          )}
-        </tbody>
-      </table>
-    </div>
-  </div>
-</section>
+              </thead>
+              <tbody className="text-xs">
+                {updatedAllAssignments.terminal1.length === 0 && updatedAllAssignments.terminal2.length === 0 ? (
+                  <tr>
+                    <td colSpan={10} className="px-4 py-52 text-center text-lg font-medium text-gray-400">
+                      No Vans Across Terminals
+                    </td>
+                  </tr>
+                ) : (
+                  [...updatedAllAssignments.terminal1, ...updatedAllAssignments.terminal2].map((assignment: any) => {
+                    const isArrivalTimeReached = new Date().getTime() >= new Date(assignment.estimatedArrivalTime).getTime();
+                    return (
+                      <tr key={assignment.id} className="border-b">
+                        <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>
+                          {assignment.VanDriverOperator.Driver.firstname.toUpperCase()} {assignment.VanDriverOperator.Driver.lastname.toUpperCase()}
+                        </td>
+                        <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>
+                          {assignment.VanDriverOperator.Van.plate_number.toUpperCase()}
+                        </td>
+                        <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>
+                          {getDestination(assignment.terminal).toUpperCase()}
+                        </td>
+                        <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>
+                          {assignment.queued_at ? new Date(assignment.queued_at).toLocaleTimeString().toUpperCase() : 'N/A'}
+                        </td>
+                        <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>
+                          {assignment.estimatedDepartureTime.toUpperCase()}
+                        </td>
+                        <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>
+                          {assignment.departureTime ? new Date(assignment.departureTime).toLocaleTimeString().toUpperCase() : 'N/A'}
+                        </td>
+                        <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>
+                          {assignment.estimatedArrivalTime.toUpperCase()}
+                        </td>
+                        <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>
+                          {assignment.arrivalTime ? new Date(assignment.arrivalTime).toLocaleTimeString().toUpperCase() : 'N/A'}
+                        </td>
+                        <td className="px-4 py-2 text-center">
+                          <span className={`${assignment.status === 'queued' ? 'text-green-500' : assignment.status === 'departed' ? 'text-red-500' : ''}`}>
+                            {assignment.status.toUpperCase()}
+                          </span>
+                        </td>
+                        <td className="px-4 py-2 text-center">
+                          {(assignment.status === 'departed' || assignment.status === 'arrived') && (assignment.terminal === 'terminal1' || assignment.terminal === 'terminal2') && (
+                            <button
+                              className="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600"
+                              onClick={() => handleConfirmArrival(assignment.id)}
+                            >
+                              ARRIVED
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

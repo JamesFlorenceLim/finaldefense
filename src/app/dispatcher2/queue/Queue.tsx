@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Modal from './Modal'; // Import the Modal component
+import sendSMS from '../../../app/semaphoreClient'; // Import the sendSMS function
 
 const fetchAssignments = async (status: string, terminal: string) => {
   const response = await axios.get(`/api/scheduling?terminal=${terminal}&status=${status}`);
@@ -82,6 +83,11 @@ const Terminal2 = () => {
 
         // Update status to queued with the new order, queuedAt time, estimated departure, and arrival times
         await updateAssignment(id, 'queued', currentTerminal, nextOrder, estimatedArrivalTime, estimatedDepartureTime, queuedAt);
+        // Send SMS to the driver
+        const assignment = assignmentsData.find((assignment: any) => assignment.id === id);
+        const driverPhoneNumber = assignment.VanDriverOperator.Driver.contact;
+        const message = `Your van is queued. Estimated departure time: ${new Date(estimatedDepartureTime).toLocaleTimeString()}`;
+        await sendSMS(driverPhoneNumber, message)
       } else if (newStatus === 'departed') {
         const assignmentsData = await fetchAssignments('queued', currentTerminal);
         const firstInQueueId = assignmentsData.length > 0 ? assignmentsData[0].id : null;
@@ -142,6 +148,11 @@ const Terminal2 = () => {
         const estimatedArrivalTime = new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString();
 
         await updateAssignment(id, 'queued', currentTerminal, nextOrder, estimatedArrivalTime, estimatedDepartureTime, queuedAt);
+        // Send SMS to the driver
+        const assignment = idleAssignments.find((assignment: any) => assignment.id === id);
+        const driverPhoneNumber = assignment.VanDriverOperator.Driver.contact;
+        const message = `Your van is queued. Estimated departure time: ${new Date(estimatedDepartureTime).toLocaleTimeString()}`;
+        await sendSMS(driverPhoneNumber, message);
       }
       // Refresh assignments after queuing all
       await loadAssignments();
@@ -185,7 +196,10 @@ const Terminal2 = () => {
     const currentTime = new Date().toISOString(); // Store the arrival time in ISO format
 
     try {
-      // Update status to idle with the arrival time
+      // Update status to arrived with the arrival time
+      await updateAssignment(id, 'arrived', currentTerminal, undefined, currentTime);
+
+      // Update status to idle
       await updateAssignment(id, 'idle', currentTerminal, undefined, currentTime);
 
       // Refresh assignments after confirming arrival

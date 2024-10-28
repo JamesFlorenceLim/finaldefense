@@ -96,6 +96,8 @@ export async function PUT(request: Request) {
             const nextOrder = lastAssignment ? lastAssignment.order + 1 : 1;
             updateData.order = nextOrder;
 
+            newTerminal = terminal; // Keep the terminal the same for queued status
+
         } else if (status === 'departed') {
             const firstInQueue = await prisma.assignment.findFirst({
                 where: { terminal, status: 'queued', schedule_id: schedule.id },
@@ -111,22 +113,22 @@ export async function PUT(request: Request) {
             updateData.departureTime = new Date();
             updateData.arrivalTime = null;
 
-        } else if (status === 'idle') {
+        } else if (status === 'arrived' || status === 'idle') {
             updateData.arrivalTime = new Date();
-            newTerminal = terminal;
+            newTerminal = terminal === 'terminal1' ? 'terminal2' : 'terminal1'; // Update terminal to the opposite terminal for arrived or idle status
         }
 
-        await prisma.assignment.update({
+        const updatedAssignment = await prisma.assignment.update({
             where: { id },
             data: updateData,
         });
 
-         // Log the event to AssignmentHistory
+        // Log the event to AssignmentHistory
         await prisma.assignmentHistory.create({
             data: {
                 assignment_id: id,
                 event: status,
-                terminal: newTerminal || terminal, // Use newTerminal if defined, otherwise use the current terminal
+                terminal: updatedAssignment.terminal, // Record the terminal from the updated assignment
             },
         });
 

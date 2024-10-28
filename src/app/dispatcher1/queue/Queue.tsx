@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Modal from './Modal'; // Import the Modal component
-import sendSMS from '../../../app/semaphoreClient'; // Import the sendSMS function=======================================
+import sendSMS from '../../../app/semaphoreClient'; // Import the sendSMS function
 
 const fetchAssignments = async (status: string, terminal: string) => {
   const response = await axios.get(`/api/scheduling?terminal=${terminal}&status=${status}`);
@@ -196,7 +196,10 @@ const Terminal1 = () => {
     const currentTime = new Date().toISOString(); // Store the arrival time in ISO format
 
     try {
-      // Update status to idle with the arrival time
+      // Update status to arrived with the arrival time
+      await updateAssignment(id, 'arrived', currentTerminal, undefined, currentTime);
+
+      // Update status to idle
       await updateAssignment(id, 'idle', currentTerminal, undefined, currentTime);
 
       // Refresh assignments after confirming arrival
