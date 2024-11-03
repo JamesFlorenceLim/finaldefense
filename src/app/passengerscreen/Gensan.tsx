@@ -1,6 +1,9 @@
+
 "use client";
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import Image from 'next/image';
+import van from '../images/van.png';
 
 const fetchAssignments = async (status: string, terminal: string) => {
   const response = await axios.get(`/api/scheduling?terminal=${terminal}&status=${status}`);
@@ -164,12 +167,12 @@ const Terminal1 = () => {
 
   const calculateEstimatedTimes = (assignments: any[]) => {
     if (assignments.length === 0) return assignments;
-  
+
     return assignments.map((assignment, index) => {
-      const baseTime = new Date(assignment.queued_at).getTime();
-      const departureTime = new Date(baseTime + (index + 1) * 30 * 60 * 1000); // 30 minutes for each order
+      const baseTime = assignment.departureTime ? new Date(assignment.departureTime).getTime() : new Date(assignment.queued_at).getTime();
+      const departureTime = assignment.departureTime ? new Date(baseTime) : new Date(baseTime + (index + 1) * 30 * 60 * 1000); // 30 minutes for each order if not forced departed
       const arrivalTime = new Date(departureTime.getTime() + 3 * 60 * 60 * 1000); // 3 hours from departure time
-  
+
       return {
         ...assignment,
         estimatedDepartureTime: departureTime.toLocaleTimeString(),
@@ -207,46 +210,60 @@ const Terminal1 = () => {
   ];
 
   return (
-    <div className="p-6 bg-gray-900 text-white min-h-screen">
-      <h1 className="text-4xl font-bold mb-6 text-center">Gensan Terminal</h1>
-      <div className="text-center mb-6">
-        <span className="text-2xl font-semibold">Current Time: {currentTime}</span>
+    <div className="bg-blue-400 text-white h-[242rem]">
+      <div className="flex justify-between items-center bg-blue-400 mx-[-2rem] mt-[-2rem] px-4 py-6">
+        <Image src={van} alt="logo" className='w-52 mr-[-20rem] ml-10 rounded-md' />
+        <h1 className="text-5xl font-light uppercase ml-[-15rem]">Markadz Terminal</h1>
+        <span className="text-4xl font-extralight uppercase mt-[-3rem] mr-8 font-mono">{currentTime.toUpperCase()}</span>
       </div>
 
       <section className="mb-8">
-        <h2 className="text-3xl font-semibold mb-4">Vans Across Terminals</h2>
-        <table className="min-w-full bg-gray-800 text-white shadow-md rounded-lg">
-          <thead>
+        {/* <h2 className="text-3xl font-semibold mb-4 uppercase">Vans Across Terminals</h2> */}
+        <table className="min-w-full text-white shadow-md rounded-lg">
+          <thead className="bg-transparent border-gray-300 uppercase">
             <tr>
-              <th className="py-2 px-4 border-b border-gray-700">Order</th>
-              <th className="py-2 px-4 border-b border-gray-700">Plate Number</th>
-              <th className="py-2 px-4 border-b border-gray-700">Queued At</th>
-              <th className="py-2 px-4 border-b border-gray-700">Estimated Departure</th>
-              <th className="py-2 px-4 border-b border-gray-700">Estimated Arrival</th>
-              <th className="py-2 px-4 border-b border-gray-700">Destination</th>
-              <th className="py-2 px-4 border-b border-gray-700">Status</th>
+              <th className="py-2 px-4 text-xl font-medium">Order</th>
+              <th className="py-2 px-4 text-xl">Plate Number</th>
+              <th className="py-2 px-4 text-xl">Queued At</th>
+              <th className="py-2 px-4 text-xl">Estimated Departure</th>
+              <th className="py-2 px-4 text-xl">Estimated Arrival</th>
+              <th className="py-2 px-4 text-xl">Destination</th>
+              <th className="py-2 px-4 text-xl">Status</th>
             </tr>
           </thead>
           <tbody>
-            {filteredAssignments.map((assignment: any) => (
-              <tr key={assignment.id} className="hover:bg-gray-700">
-                <td className="py-2 px-4 border-b border-gray-700 text-center">
-                  {assignment.status === 'departed' ? '' : assignment.order}
-                </td>
-                <td className="py-2 px-4 border-b border-gray-700 text-center">{assignment.VanDriverOperator.Van.plate_number.toUpperCase()}</td>
-                <td className="py-2 px-4 border-b border-gray-700 text-center">{assignment.queued_at ? new Date(assignment.queued_at).toLocaleTimeString().toUpperCase() : 'N/A'}</td>
-                <td className="py-2 px-4 border-b border-gray-700 text-center">{assignment.estimatedDepartureTime.toUpperCase()}</td>
-                <td className="py-2 px-4 border-b border-gray-700 text-center">{assignment.estimatedArrivalTime.toUpperCase()}</td>
-                <td className="py-2 px-4 border-b border-gray-700 text-center">
-                  {assignment.status === 'queued' && assignment.terminal === 'terminal1'
-                    ? 'PALIMBANG TERMINAL'
-                    : getDestination(assignment.terminal).toUpperCase()}
-                </td>
-                <td className={`py-2 px-4 border-b border-gray-700 text-center ${assignment.status === 'queued' ? 'text-green-500' : assignment.status === 'departed' ? 'text-red-500' : ''}`}>
-                  {assignment.status.toUpperCase()}
-                </td>
-              </tr>
-            ))}
+            {filteredAssignments.map((assignment: any, index: number) => {
+              const isDeparted = assignment.status === 'departed';
+              const departureTime = new Date(assignment.departureTime).getTime();
+              const currentTime = new Date().getTime();
+              const timeDifference = currentTime - departureTime;
+
+              if (isDeparted && timeDifference > 15 * 60 * 1000) {
+                return null; // Skip rendering this row if departed and more than 1 minute has passed
+              }
+
+              return (
+                <tr key={assignment.id} className={`${index % 2 === 0 ? 'bg-blue-500' : 'bg-blue-400'} hover:bg-blue-300`}>
+                  <td className="py-2 px-4 text-center text-xl uppercase">
+                    {assignment.status === 'departed' ? '' : assignment.order}
+                  </td>
+                  <td className="py-2 px-4 text-center text-xl uppercase">{assignment.VanDriverOperator.Van.plate_number.toUpperCase()}</td>
+                  <td className="py-2 px-4 text-center text-xl uppercase font-mono">{assignment.queued_at ? new Date(assignment.queued_at).toLocaleTimeString().toUpperCase() : 'N/A'}</td>
+                  <td className="py-2 px-4 text-center text-xl uppercase font-mono">{assignment.estimatedDepartureTime.toUpperCase()}</td>
+                  <td className="py-2 px-4 text-center text-xl uppercase font-mono">{assignment.estimatedArrivalTime.toUpperCase()}</td>
+                  <td className="py-2 px-4 text-center text-xl uppercase">
+                    {assignment.status === 'queued' && assignment.terminal === 'terminal1'
+                      ? 'PALIMBANG TERMINAL'
+                      : getDestination(assignment.terminal).toUpperCase()}
+                  </td>
+                  <td className="py-2 px-4 text-center text-xl">
+                    <span className={`px-2 py-2 rounded ${assignment.status === 'queued' ? 'bg-emerald-500 text-white' : assignment.status === 'departed' ? 'bg-rose-500 text-white' : 'bg-ye text-white'}`}>
+                      {assignment.status.toUpperCase()}
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </section>

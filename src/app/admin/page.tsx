@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import WithAuth from '../withAuth';
 
 const fetchAssignments = async (status: string, terminal: string) => {
   const response = await axios.get(`/api/scheduling?terminal=${terminal}&status=${status}`);
@@ -18,6 +19,8 @@ const Terminal1 = () => {
   const [statusFilter, setStatusFilter] = useState<string>('queued');
   const [currentTime, setCurrentTime] = useState<string>(new Date().toLocaleTimeString());
   const [allAssignments, setAllAssignments] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const rowsPerPage = 6;
 
   const loadAssignments = async () => {
     const statuses = ['queued', 'departed'];
@@ -205,94 +208,158 @@ const Terminal1 = () => {
     terminal2: calculateEstimatedTimes(allAssignments.filter(a => a.terminal === 'terminal2'))
   };
 
+  // Pagination logic
+  const totalPages = Math.ceil([...updatedAllAssignments.terminal1, ...updatedAllAssignments.terminal2].length / rowsPerPage);
+  const paginatedAssignments = [...updatedAllAssignments.terminal1, ...updatedAllAssignments.terminal2].slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+
+  const handlePrevious = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
   return (
     <div className="p-6 ml-64">
       <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">Admin Schedule Dashboard</h1>
-      <div className="text-center mb-6">
+      {/* <div className="text-center mb-6">
         <span className="text-xl font-semibold text-gray-700">Current Time: {currentTime}</span>
-      </div>
+      </div> */}
 
       <section className="mb-8">
         <h2 className="text-2xl font-semibold mb-4 text-gray-700">Vans Across Terminals</h2>
-        <div className="flex flex-col overflow-x-auto sm:-mx-6 lg:-mx-8">
-          <div className="inline-block min-w-full overflow-x-auto relative">
-            <table className="bg-white rounded-lg mx-auto overflow-hidden" style={{ tableLayout: 'fixed' }}>
-              <thead className="bg-blue-400 text-xs">
-                <tr className="text-white">
-                  <th className="px-4 py-2 w-32 text-left font-normal rounded-l-lg">Driver</th>
-                  <th className="px-4 py-2 w-32 text-left font-normal">Plate Number</th>
-                  <th className="px-4 py-2 w-32 text-left font-normal">Terminal</th>
-                  <th className="px-4 py-2 w-32 text-left font-normal">Queued At</th>
-                  <th className="px-4 py-2 w-32 text-left font-normal">Estimated Departure</th>
-                  <th className="px-4 py-2 w-32 text-left font-normal">Departed At</th>
-                  <th className="px-4 py-2 w-32 text-left font-normal">Estimated Arrival</th>
-                  <th className="px-4 py-2 w-32 text-left font-normal">Arrived At</th>
-                  <th className="px-4 py-2 w-32 text-left font-normal">Status</th>
-                  <th className="px-4 py-2 w-32 text-center font-normal rounded-r-lg">Actions</th>
+
+        <div className="flex flex-col sm:-mx-6 lg:-mx-7">
+  <div className="inline-block min-w-full relative " style={{width:'80.3rem', marginLeft:'-2.3rem'}}>
+    <table className="bg-white rounded-lg mx-auto overflow-hidden" style={{ tableLayout: 'fixed' }}>
+      <thead className="bg-blue-400 text-xs" >
+        <tr className="text-white">
+          <th className="px-4 py-2 text-left font-normal rounded-l-lg whitespace-nowrap">Driver</th>
+          <th className="px-4 py-2 w-32 text-left font-normal whitespace-nowrap">Plate Number</th>
+          <th className="px-4 py-2 text-left font-normal whitespace-nowrap">Terminal</th>
+          <th className="px-4 py-2 w-32 text-left font-normal whitespace-nowrap">Queued At</th>
+          <th className="px-4 py-2 w-48 text-left font-normal whitespace-nowrap">Estimated Departure</th>
+          <th className="px-4 py-2 w-28 text-left font-normal whitespace-nowrap">Departed At</th>
+          <th className="px-4 py-2 w-40 text-left font-normal whitespace-nowrap">Estimated Arrival</th>
+          <th className="px-5 py-2 w-28 text-left font-normal whitespace-nowrap">Arrived At</th>
+          <th className="px-12 py-2 text-left font-normal whitespace-nowrap">Status</th>
+          <th className="px-4 py-2 text-center font-normal rounded-r-lg whitespace-nowrap">Actions</th>
+        </tr>
+      </thead>
+      <tbody className="text-xs">
+        {paginatedAssignments.length === 0 ? (
+          <tr>
+            <td colSpan={10} className="px-4 py-52 text-center text-lg font-medium text-gray-400">
+              No Vans Across Terminals
+            </td>
+          </tr>
+        ) : (
+          paginatedAssignments.map((assignment: any) => {
+            const isArrivalTimeReached = new Date().getTime() >= new Date(assignment.estimatedArrivalTime).getTime();
+            return (
+                <tr key={assignment.id} className="border-b">
+                <td className="px-4 py-4 uppercase text-nowrap">
+                  {assignment.VanDriverOperator.Driver.firstname.toUpperCase()} {assignment.VanDriverOperator.Driver.lastname.toUpperCase()}
+                </td>
+                <td className="px-4 py-4 uppercase text-nowrap">
+                  {assignment.VanDriverOperator.Van.plate_number.toUpperCase()}
+                </td>
+                <td className="px-4 py-4 uppercase text-nowrap">
+                  {getDestination(assignment.terminal).toUpperCase()}
+                </td>
+                <td className="px-4 py-4 uppercase text-nowrap">
+                  {assignment.queued_at ? new Date(assignment.queued_at).toLocaleTimeString().toUpperCase() : 'N/A'}
+                </td>
+                <td className="px-4 py-4 uppercase text-nowrap">
+                  {assignment.estimatedDepartureTime.toUpperCase()}
+                </td>
+                <td className="px-4 py-4 uppercase text-nowrap">
+                  {assignment.departureTime ? new Date(assignment.departureTime).toLocaleTimeString().toUpperCase() : 'N/A'}
+                </td>
+                <td className="px-4 py-4 uppercase text-nowrap">
+                  {assignment.estimatedArrivalTime.toUpperCase()}
+                </td>
+                <td className="px-4 py-4 uppercase text-nowrap">
+                  {assignment.arrivalTime ? new Date(assignment.arrivalTime).toLocaleTimeString().toUpperCase() : 'N/A'}
+                </td>
+                <td className="px-4 py-4 text-center">
+                  <div className={`flex items-center justify-center ${assignment.status === 'queued' ? 'bg-green-100' : assignment.status === 'departed' ? 'bg-red-100' : 'bg-gray-100'} rounded-full px-2 py-1`}>
+                  <span className={`w-2 h-2 rounded-full mr-2 ${assignment.status === 'queued' ? 'bg-green-500' : assignment.status === 'departed' ? 'bg-red-500' : 'bg-gray-500'}`}></span>
+                  <span className={`${assignment.status === 'queued' ? 'text-green-500' : assignment.status === 'departed' ? 'text-red-500' : 'text-gray-500'}`}>
+                    {assignment.status.toUpperCase()}
+                  </span>
+                  </div>
+                </td>
+                <td className="px-4 py-4 text-center">
+                  <button
+                    className={`bg-green-500 text-white px-3 py-2 rounded-2xl ${!(assignment.status === 'departed' || assignment.status === 'arrived') ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-600'}`}
+                    onClick={() => handleConfirmArrival(assignment.id)}
+                    disabled={!(assignment.status === 'departed' || assignment.status === 'arrived')}
+                  >
+                    ARRIVED
+                  </button>
+                </td>
                 </tr>
-              </thead>
-              <tbody className="text-xs">
-                {updatedAllAssignments.terminal1.length === 0 && updatedAllAssignments.terminal2.length === 0 ? (
-                  <tr>
-                    <td colSpan={10} className="px-4 py-52 text-center text-lg font-medium text-gray-400">
-                      No Vans Across Terminals
-                    </td>
-                  </tr>
-                ) : (
-                  [...updatedAllAssignments.terminal1, ...updatedAllAssignments.terminal2].map((assignment: any) => {
-                    const isArrivalTimeReached = new Date().getTime() >= new Date(assignment.estimatedArrivalTime).getTime();
-                    return (
-                      <tr key={assignment.id} className="border-b">
-                        <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>
-                          {assignment.VanDriverOperator.Driver.firstname.toUpperCase()} {assignment.VanDriverOperator.Driver.lastname.toUpperCase()}
-                        </td>
-                        <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>
-                          {assignment.VanDriverOperator.Van.plate_number.toUpperCase()}
-                        </td>
-                        <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>
-                          {getDestination(assignment.terminal).toUpperCase()}
-                        </td>
-                        <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>
-                          {assignment.queued_at ? new Date(assignment.queued_at).toLocaleTimeString().toUpperCase() : 'N/A'}
-                        </td>
-                        <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>
-                          {assignment.estimatedDepartureTime.toUpperCase()}
-                        </td>
-                        <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>
-                          {assignment.departureTime ? new Date(assignment.departureTime).toLocaleTimeString().toUpperCase() : 'N/A'}
-                        </td>
-                        <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>
-                          {assignment.estimatedArrivalTime.toUpperCase()}
-                        </td>
-                        <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>
-                          {assignment.arrivalTime ? new Date(assignment.arrivalTime).toLocaleTimeString().toUpperCase() : 'N/A'}
-                        </td>
-                        <td className="px-4 py-2 text-center">
-                          <span className={`${assignment.status === 'queued' ? 'text-green-500' : assignment.status === 'departed' ? 'text-red-500' : ''}`}>
-                            {assignment.status.toUpperCase()}
-                          </span>
-                        </td>
-                        <td className="px-4 py-2 text-center">
-                          {(assignment.status === 'departed' || assignment.status === 'arrived') && (assignment.terminal === 'terminal1' || assignment.terminal === 'terminal2') && (
-                            <button
-                              className="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600"
-                              onClick={() => handleConfirmArrival(assignment.id)}
-                            >
-                              ARRIVED
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+            );
+          })
+        )}
+      </tbody>
+    </table>
+  </div>
+</div>
       </section>
+
+      {/* PAGINATION */}
+      <nav className="pagination-bottom flex items-center -space-x-px ml-[750px] mb-16" aria-label="Pagination">
+        <button
+          type="button"
+          className="min-h-[38px] min-w-[38px] py-2 px-2.5 inline-flex justify-center 
+          items-center gap-x-1.5 text-sm first:rounded-s-lg last:rounded-e-lg border border-blue-300
+          text-gray-800 hover:bg-blue-500 hover:text-white focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none"
+          aria-label="Previous"
+          onClick={handlePrevious}
+          disabled={currentPage === 1}
+        >
+          <svg className="shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="m15 18-6-6 6-6"></path>
+          </svg>
+          <span className="hidden sm:block">Previous</span>
+        </button>
+        {[...Array(totalPages)].map((_, index) => (
+          <button
+            key={index}
+            type="button"
+            className={`min-h-[38px] min-w-[38px] flex justify-center items-center border border-blue-300
+              py-2 px-3 text-sm first:rounded-s-lg last:rounded-e-lg focus:outline-none
+              ${currentPage === index + 1 ? 'bg-blue-500 text-white' : 'text-gray-800 hover:text-white hover:bg-blue-500'}`}
+            aria-current={currentPage === index + 1 ? 'page' : undefined}
+            onClick={() => setCurrentPage(index + 1)}
+          >
+            {index + 1}
+          </button>
+        ))}
+        <button
+          type="button"
+          className="min-h-[38px] min-w-[38px] py-2 px-2.5 inline-flex justify-center items-center
+          gap-x-1.5 text-sm first:rounded-s-lg last:rounded-e-lg border border-blue-300 text-gray-800
+          hover:bg-blue-500 hover:text-white  focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none"
+          aria-label="Next"
+          onClick={handleNext}
+          disabled={currentPage === totalPages}
+        >
+          <span className="hidden sm:block">Next</span>
+          <svg className="shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="m9 18 6-6-6-6"></path>
+          </svg>
+        </button>
+      </nav>
     </div>
   );
 };
 
-export default Terminal1;
+export default WithAuth(Terminal1);

@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
 
     console.log('Login successful for username:', username);
     console.log('Generated token:', token); // Log the generated token
-    return NextResponse.json({ token, roleType: user.roleType }, { status: 200 });
+    return NextResponse.json({ token, roleType: user.roleType, username: user.username }, { status: 200 });
   } catch (error: any) {
     console.error('Error during authentication:', error);
     return NextResponse.json({ message: 'Failed to authenticate', error: error.message }, { status: 500 });

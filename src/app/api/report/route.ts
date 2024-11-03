@@ -9,8 +9,9 @@ export async function GET(request: Request) {
     const vanDriverOperatorId = url.searchParams.get('vanDriverOperatorId');
     const startDate = url.searchParams.get('startDate');
     const endDate = url.searchParams.get('endDate');
+    const status = url.searchParams.get('status');
 
-    console.log('Request Parameters:', { type, vanDriverOperatorId, startDate, endDate });
+    console.log('Request Parameters:', { type, vanDriverOperatorId, startDate, endDate, status });
 
     try {
         if (type === 'vanDriverOperators') {
@@ -57,6 +58,31 @@ export async function GET(request: Request) {
             });
             console.log('Assignment History:', history); // Log the response data
             return NextResponse.json(history);
+        } else if (type === 'terminalReport' && startDate && endDate) {
+            const parsedStartDate = new Date(startDate);
+            const parsedEndDate = new Date(endDate);
+            console.log('Parsed Dates:', { parsedStartDate, parsedEndDate });
+
+            const terminalReport = await prisma.assignmentHistory.groupBy({
+                by: ['terminal'],
+                where: {
+                    timestamp: {
+                        gte: parsedStartDate,
+                        lte: parsedEndDate,
+                    },
+                    ...(status && { event: status }),
+                },
+                _count: {
+                    terminal: true,
+                },
+                orderBy: {
+                    _count: {
+                        terminal: 'desc',
+                    },
+                },
+            });
+            console.log('Terminal Report:', terminalReport); // Log the response data
+            return NextResponse.json(terminalReport);
         } else if (type === 'recentDrivers') {
             const tenDaysAgo = new Date();
             tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
@@ -84,19 +110,56 @@ export async function GET(request: Request) {
                 },
             });
             return NextResponse.json(recentDrivers);
-        } else if (type === 'terminalStats') {
-            const terminalStats = await prisma.assignmentHistory.groupBy({
-                by: ['terminal'],
-                _count: {
-                    terminal: true,
-                },
-                orderBy: {
-                    _count: {
-                        terminal: 'desc',
+        } else if (type === 'operatorArrivals' && startDate && endDate) {
+            const parsedStartDate = new Date(startDate);
+            const parsedEndDate = new Date(endDate);
+            console.log('Parsed Dates:', { parsedStartDate, parsedEndDate });
+
+            const operatorArrivals = await prisma.vanDriverOperator.findMany({
+                include: {
+                    Driver: {
+                        select: {
+                            firstname: true,
+                            lastname: true,
+                        },
+                    },
+                    Assignment: {
+                        where: {
+                            assigned_at: {
+                                gte: parsedStartDate,
+                                lte: parsedEndDate,
+                            },
+                        },
+                        select: {
+                            AssignmentHistory: {
+                                select: {
+                                    terminal: true,
+                                },
+                            },
+                        },
                     },
                 },
             });
-            return NextResponse.json(terminalStats);
+
+            const arrivalCounts = operatorArrivals.map(operator => {
+                const gensanArrivals = operator.Assignment.reduce((count: number, assignment: any) => {
+                    return count + assignment.AssignmentHistory.filter((history: any) => history.terminal === 'terminal1').length;
+                }, 0);
+
+                const palimbangArrivals = operator.Assignment.reduce((count: number, assignment: any) => {
+                    return count + assignment.AssignmentHistory.filter((history: any) => history.terminal === 'terminal2').length;
+                }, 0);
+
+                return {
+                    id: operator.id,
+                    Driver: operator.Driver,
+                    gensanArrivals,
+                    palimbangArrivals,
+                };
+            });
+
+            console.log('Operator Arrivals:', arrivalCounts); // Log the response data
+            return NextResponse.json(arrivalCounts);
         } else {
             return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
         }

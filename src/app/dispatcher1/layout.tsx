@@ -15,7 +15,7 @@ export default function RootLayout({
     <div>
       <Header />
       <div className="flex">
-        <Sidebar />
+        
         <div className="flex-grow p-5">
           {children}
         </div>

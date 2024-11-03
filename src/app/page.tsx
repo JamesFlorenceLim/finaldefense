@@ -23,6 +23,7 @@ const LoginPage = () => {
 
       localStorage.setItem('token', token);
       localStorage.setItem('roleType', roleType);
+      localStorage.setItem('username', username);
 
       if (roleType === 'admin') {
         router.push('/admin');
@@ -65,9 +66,9 @@ const LoginPage = () => {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-3 py-2 mt-1 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-200 bg-gray-700 text-white"
             />
-            <div className="flex justify-end mt-2">
+            {/* <div className="flex justify-end mt-2">
               <a href="#" className="text-sm text-blue-400 hover:underline">Forgot password?</a>
-            </div>
+            </div> */}
           </div>
           {error && <p className="text-sm text-red-600">{error}</p>}
           <button
@@ -80,11 +81,11 @@ const LoginPage = () => {
         </form>
         
       </div>
-      <div className="mt-4">
-        <Link href={'/passengerscreen'} className="text-sm font-medium text-blue-400 hover:underline">
-           
+      <div className="absolute top-4 right-4">
+        <Link href={'/passengerscreen'}>
+          <button className="px-4 py-2 font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
         View Schedule
-          
+          </button>
         </Link>
       </div>
     </div>
