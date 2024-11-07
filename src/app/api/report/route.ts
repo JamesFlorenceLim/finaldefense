@@ -54,6 +54,18 @@ export async function GET(request: Request) {
                     event: true,
                     timestamp: true,
                     terminal: true,
+                    temporary_driver_id: true,
+                    Assignment: {
+                        select: {
+                            temporary_driver_id: true,
+                            Driver: {
+                                select: {
+                                    firstname: true,
+                                    lastname: true,
+                                },
+                            },
+                        },
+                    },
                 },
             });
             console.log('Assignment History:', history); // Log the response data

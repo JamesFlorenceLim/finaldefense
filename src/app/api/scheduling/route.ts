@@ -129,6 +129,60 @@ export async function PUT(request: Request) {
                 assignment_id: id,
                 event: status,
                 terminal: updatedAssignment.terminal, // Record the terminal from the updated assignment
+                temporary_driver_id: updatedAssignment.temporary_driver_id, // Record the temporary driver if available
+            },
+        });
+
+        return NextResponse.json({ message: 'Updated successfully' });
+    } catch (error) {
+        console.error('Update failed:', error);
+        return NextResponse.json({ error: 'Failed to update assignment' }, { status: 500 });
+    }
+}
+
+export async function PATCH(request: Request) {
+    const body = await request.json();
+    const { id, status, terminal } = body;
+
+    if (typeof id !== 'number' || !status || !terminal) {
+        return NextResponse.json({ error: 'ID, status, and terminal are required and must be valid' }, { status: 400 });
+    }
+
+    if (!['terminal1', 'terminal2'].includes(terminal)) {
+        return NextResponse.json({ error: 'Invalid terminal type' }, { status: 400 });
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    try {
+        const schedule = await prisma.schedule.findUnique({
+            where: { date: today },
+        });
+
+        if (!schedule) {
+            return NextResponse.json({ error: 'No schedule found for today' }, { status: 404 });
+        }
+
+        const updateData: any = { status, terminal };
+
+        if (status === 'idle') {
+            updateData.arrivalTime = new Date();
+            updateData.order = 0; // Set order to 0 to be on top
+        }
+
+        const updatedAssignment = await prisma.assignment.update({
+            where: { id },
+            data: updateData,
+        });
+
+        // Log the event to AssignmentHistory
+        await prisma.assignmentHistory.create({
+            data: {
+                assignment_id: id,
+                event: status,
+                terminal: updatedAssignment.terminal,
+                temporary_driver_id: updatedAssignment.temporary_driver_id,
             },
         });
 

@@ -30,9 +30,24 @@ const Terminal1 = () => {
     setAssignments(data);
   };
 
+  const requeueAssignment = async (id: number, terminal: string) => {
+    await axios.patch('/api/scheduling', { id, status: 'idle', terminal });
+  };
+  
+  const handleRequeue = async (id: number) => {
+    const currentTerminal = 'terminal1';
+    try {
+      await requeueAssignment(id, currentTerminal);
+      await loadAssignments();
+      await loadIdleAssignments();
+      await loadAllAssignments();
+    } catch (error) {
+      console.error('Error re-queuing assignment:', error);
+    }
+  };
   const loadIdleAssignments = async () => {
     const data = await fetchAssignments('idle', 'terminal1');
-    data.sort((a: any, b: any) => a.queue_order - b.queue_order); // Sort by queue_order
+    data.sort((a: any, b: any) => a.order - b.order || new Date(b.arrivalTime).getTime() - new Date(a.arrivalTime).getTime()); // Sort by order first, then by arrivalTime
     setIdleAssignments(data);
   };
 
@@ -142,6 +157,11 @@ const Terminal1 = () => {
     );
   };
 
+  const handleSelectAll = () => {
+    const allIdleAssignmentIds = idleAssignments.map((assignment: any) => assignment.id);
+    setSelectedIdleAssignments(allIdleAssignmentIds);
+  };
+
   const handleQueueAll = async () => {
     const currentTerminal = 'terminal1';
     try {
@@ -149,9 +169,9 @@ const Terminal1 = () => {
       const currentQueuedAssignments = await fetchAssignments('queued', currentTerminal);
       const startingOrder = currentQueuedAssignments.length;
   
-      for (let i = 0; i < selectedIdleAssignments.length; i++) {
-        const id = selectedIdleAssignments[i];
-        const nextOrder = startingOrder + i + 1; // Calculate the next order number
+      // Create an array of promises for updating assignments
+      const updatePromises = selectedIdleAssignments.map(async (id, index) => {
+        const nextOrder = startingOrder + index + 1; // Calculate the next order number
         const queuedAt = new Date().toISOString(); // Store the queued at time in ISO format
   
         // Calculate estimated departure time (30 minutes from now + 30 minutes for each subsequent van)
@@ -161,13 +181,18 @@ const Terminal1 = () => {
         const estimatedArrivalTime = new Date(new Date(estimatedDepartureTime).getTime() + 3 * 60 * 60 * 1000).toISOString();
   
         await updateAssignment(id, 'queued', currentTerminal, nextOrder, estimatedArrivalTime, estimatedDepartureTime, queuedAt);
+  
         // Send SMS to the driver
         const assignment = idleAssignments.find((assignment: any) => assignment.id === id);
         const driverPhoneNumber = assignment.VanDriverOperator.Driver.contact;
         const message = `Your van is queued. Estimated departure time: ${new Date(estimatedDepartureTime).toLocaleTimeString()}`;
         await sendSMS(driverPhoneNumber, message);
         console.log(`SMS sent to ${driverPhoneNumber}: ${message}`);
-      }
+      });
+  
+      // Wait for all update promises to complete
+      await Promise.all(updatePromises);
+  
       // Refresh assignments after queuing all
       await loadAssignments();
       await loadIdleAssignments();
@@ -242,24 +267,30 @@ const Terminal1 = () => {
           Incoming / Departed Vans
         </button>
       <div className="flex space-x-4">
-        <section className="mb-8rounded-lg p-4 w-1/2">
-          <h2 className="text-2xl font-semibold mb-4 text-gray-700  ml-[-2rem] "> Available Vans</h2>
+        <section className="mb-8 rounded-lg p-4 w-1/2">
+          <h2 className="text-2xl font-semibold mb-4 text-gray-700 ml-[-2rem]">Available Vans</h2>
           <button className="mt-[-3rem] absolute ml-[21rem] bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600" onClick={handleQueueAll} disabled={selectedIdleAssignments.length === 0}>
-            Queue
+            Schedule
           </button>
 
           {/* Vans */}
-          <table className=" bg-white shadow-md rounded-lg w-full ml-[-2rem]">
+          <table className="bg-white shadow-md rounded-lg w-full ml-[-2rem]">
             <thead className='bg-blue-300'>
               <tr className='text-left'>
+                <th className="py-2 px-4 border-b uppercase">Order</th>
                 <th className="py-2 px-4 border-b uppercase">Driver</th>
                 <th className="py-2 px-4 border-b uppercase">Plate Number</th>
-                <th className="py-2 px-4 border-b uppercase">Select</th>
+                <th className="py-2 px-4 border-b uppercase">
+                  <button className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600" onClick={handleSelectAll}>
+                    Select All
+                  </button>
+                </th>
               </tr>
             </thead>
             <tbody>
-              {idleAssignments.map((assignment: any) => (
+              {idleAssignments.map((assignment: any, index: number) => (
                 <tr key={assignment.id}>
+                  <td className="py-2 px-4 border-b">{index + 1}</td>
                   <td className="py-2 px-4 border-b uppercase">{assignment.VanDriverOperator.Driver.firstname} {assignment.VanDriverOperator.Driver.lastname}</td>
                   <td className="py-2 px-4 border-b uppercase">{assignment.VanDriverOperator.Van.plate_number}</td>
                   <td className="py-2 px-4 border-b text-center">
@@ -288,42 +319,51 @@ const Terminal1 = () => {
           <th className="py-2 px-4 border-b uppercase">Est. Departure Time</th>
           <th className="py-2 px-4 border-b uppercase">Est. Arrival Time</th>
           <th className="py-2 px-4 border-b uppercase">Actions</th>
+          <th className="py-2 px-4 border-b uppercase">Schedule</th>
               </tr>
             </thead>
 
             <tbody>
               {updatedAssignments
-                .filter((assignment: any) => assignment.status === 'queued' && assignment.terminal === 'terminal1')
-                .map((assignment: any, index: number) => (
-                  <tr key={assignment.id}>
-                    <td className="py-2 px-4 border-b">{new Date(assignment.assigned_at).toLocaleDateString()}</td>
-                    <td className="py-2 px-4 border-b">{assignment.VanDriverOperator.Van.plate_number}</td>
-                    <td className="py-2 px-4 border-b">{assignment.queued_at ? new Date(assignment.queued_at).toLocaleTimeString() : 'N/A'}</td>
-                    <td className="py-2 px-4 border-b">{assignment.estimatedDepartureTime}</td>
-                    <td className="py-2 px-4 border-b">{assignment.estimatedArrivalTime}</td>
-                    <td className="py-2 px-4 border-b">
-                      {index === 0 && assignment.status === 'queued' && (
-                        <>
-                          {new Date().getTime() >= new Date(assignment.queued_at).getTime() + 30 * 60 * 1000 ? (
-                            <button
-                              className="bg-red-500 text-white px-2 py-1 rounded-lg hover:bg-red-600"
-                              onClick={() => handleStatusChange(assignment.id, 'departed')}
-                            >
-                              Confirm Depart
-                            </button>
-                          ) : (
-                            <button
-                              className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600"
-                              onClick={() => handleStatusChange(assignment.id, 'departed')}
-                            >
-                              Force Depart
-                            </button>
-                          )}
-                        </>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+          .filter((assignment: any) => assignment.status === 'queued' && assignment.terminal === 'terminal1')
+          .map((assignment: any, index: number) => (
+            <tr key={assignment.id}>
+              <td className="py-2 px-4 border-b">{new Date(assignment.assigned_at).toLocaleDateString()}</td>
+              <td className="py-2 px-4 border-b">{assignment.VanDriverOperator.Van.plate_number}</td>
+              <td className="py-2 px-4 border-b">{assignment.queued_at ? new Date(assignment.queued_at).toLocaleTimeString() : 'N/A'}</td>
+              <td className="py-2 px-4 border-b">{assignment.estimatedDepartureTime}</td>
+              <td className="py-2 px-4 border-b">{assignment.estimatedArrivalTime}</td>
+              <td className="py-2 px-4 border-b">
+                {index === 0 && assignment.status === 'queued' && (
+            <>
+              {new Date().getTime() >= new Date(assignment.queued_at).getTime() + 30 * 60 * 1000 ? (
+                <button
+                  className="bg-red-500 text-white px-2 py-1 rounded-lg hover:bg-red-600"
+                  onClick={() => handleStatusChange(assignment.id, 'departed')}
+                >
+                  Confirm Depart
+                </button>
+              ) : (
+                <button
+                  className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600"
+                  onClick={() => handleStatusChange(assignment.id, 'departed')}
+                >
+                  Force Depart
+                </button>
+              )}
+            </>
+                )}
+              </td>
+              <td className="py-2 px-4 border-b">
+                <button
+            className="bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600 ml-2"
+            onClick={() => handleRequeue(assignment.id)}
+                >
+            Re-Schedule
+                </button>
+              </td>
+            </tr>
+          ))}
             </tbody>
           </table>
         </section>

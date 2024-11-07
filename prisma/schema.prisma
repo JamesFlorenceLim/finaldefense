@@ -56,11 +56,12 @@ model Driver {
   archived             Boolean            @default(false)
   VanDriverOperator    VanDriverOperator?
   Assignment           Assignment[]
+  AssignmentHistory    AssignmentHistory[]
 }
 
 model Van {
   id                   Int                 @id @default(autoincrement())
-  mv_file_no           String              @unique
+  mv_file_no           String              
   plate_number         String              @unique
   engine_no            String              @unique
   chassis_no           String              @unique
@@ -128,7 +129,9 @@ model AssignmentHistory {
   event         String
   timestamp     DateTime     @default(now())
   terminal      TerminalType
+  temporary_driver_id  Int? 
   Assignment    Assignment   @relation(fields: [assignment_id], references: [id])
+  Driver               Driver?      @relation(fields: [temporary_driver_id], references: [id]) // Add this line
 }
 
 model Queue {
