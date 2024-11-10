@@ -124,16 +124,41 @@ const Sidebar = () => {
                 <span className="text-sm font-bold">User Management</span>
           </Link>
 
-          <Link href="/admin/report"
-      className={`relative flex items-center space-x-2 p-2 rounded-md mt-2 group cursor-pointer ${activeLink === '/admin/Schedule' ? 'bg-custom-white text-custom-black' : 'text-gray-400 hover:bg-custom-white hover:text-custom-black'}`}
-      onClick={() => setActiveLink('/admin/Schedule')}>
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" className={`w-5 h-5 ${activeLink === '/admin/Schedule' ? 'stroke-custom-black' : 'stroke-gray-400 group-hover:stroke-custom-black'}`}>
-          <path d="M5.32171 9.6829C7.73539 5.41196 8.94222 3.27648 10.5983 2.72678C11.5093 2.42437 12.4907 2.42437 13.4017 2.72678C15.0578 3.27648 16.2646 5.41196 18.6783 9.6829C21.092 13.9538 22.2988 16.0893 21.9368 17.8293C21.7376 18.7866 21.2469 19.6548 20.535 20.3097C19.241 21.5 16.8274 21.5 12 21.5C7.17265 21.5 4.75897 21.5 3.46496 20.3097C2.75308 19.6548 2.26239 18.7866 2.06322 17.8293C1.70119 16.0893 2.90803 13.9538 5.32171 9.6829Z" stroke="currentColor" stroke-width="1.5" />
-          <path d="M11.992 16H12.001" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-          <path d="M12 13L12 8.99997" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-      </svg>
-      <span className="text-sm font-bold">Report</span>
-</Link>
+            <div className="relative group">
+              <button
+              className={`relative flex items-center space-x-2 p-2 w-48 rounded-md mt-2 group cursor-pointer ${activeLink.startsWith('/admin/report') ? 'bg-custom-white text-custom-black' : 'text-gray-400 hover:bg-custom-white hover:text-custom-black'}`}
+              onClick={() => {
+                setIsOpen(!isOpen);
+                setActiveLink('/admin/report');
+              }}
+              >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" className={`w-5 h-5 ${activeLink.startsWith('/admin/report') ? 'stroke-custom-black' : 'stroke-gray-400 group-hover:stroke-custom-black'}`}>
+                <path d="M5.32171 9.6829C7.73539 5.41196 8.94222 3.27648 10.5983 2.72678C11.5093 2.42437 12.4907 2.42437 13.4017 2.72678C15.0578 3.27648 16.2646 5.41196 18.6783 9.6829C21.092 13.9538 22.2988 16.0893 21.9368 17.8293C21.7376 18.7866 21.2469 19.6548 20.535 20.3097C19.241 21.5 16.8274 21.5 12 21.5C7.17265 21.5 4.75897 21.5 3.46496 20.3097C2.75308 19.6548 2.26239 18.7866 2.06322 17.8293C1.70119 16.0893 2.90803 13.9538 5.32171 9.6829Z" stroke="currentColor" stroke-width="1.5" />
+                <path d="M11.992 16H12.001" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M12 13L12 8.99997" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <span className="text-sm font-bold">Report</span>
+              <svg className="w-4 h-4 right-2 absolute " fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+              </button>
+
+              <div className={`absolute left-0 mt-2 w-48 text-sm font-bold ${isOpen ? 'block' : 'hidden'}`}>
+                <Link href="/admin/report/Driver" 
+                className={`relative flex items-center px-4 py-2 text-sm ${activeLink === '/admin/report/Driver' ? 'bg-gray-100 text-gray-700' : 'text-gray-400 hover:bg-gray-100 hover:text-gray-700'}`}
+                onClick={() => setActiveLink('/admin/report/Driver')}>
+                <span className={`w-1.5 h-1.5 rounded-full mr-2 ${activeLink === '/admin/report/Driver' ? 'bg-gray-700' : 'bg-gray-400 hover:bg-gray-700'}`}></span>
+                Driver
+                </Link>
+                <Link href="/admin/report/Van" 
+                className={`relative flex items-center px-4 py-2 text-sm ${activeLink === '/admin/report/Van' ? 'bg-gray-100 text-gray-700' : 'text-gray-400 hover:bg-gray-100 hover:text-gray-700'}`}
+                onClick={() => setActiveLink('/admin/report/Van')}>
+                <span className={`w-1.5 h-1.5 rounded-full mr-2 ${activeLink === '/admin/report/Van' ? 'bg-gray-700' : 'bg-gray-400 hover:bg-gray-700'}`}></span>
+                Van
+                </Link>
+              </div>
+            </div>
+
         </nav>
       </div>
     </div>

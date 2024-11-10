@@ -1,4 +1,4 @@
-import Queue from '../../dispatcher2/queue/Queue';
+import Queue from './Queue';
 
 const Queuepage = () => (
   <div>

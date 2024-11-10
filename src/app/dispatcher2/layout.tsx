@@ -1,5 +1,5 @@
-import Sidebar from "../dispatcher2/components/Sidebar";
-import Header from "../dispatcher2/components/Header";
+import Sidebar from "./components/Sidebar";
+import Header from "./components/Header";
 
 export const metadata = {
   title: 'Next.js',
@@ -15,7 +15,7 @@ export default function RootLayout({
     <div>
       <Header />
       <div className="flex">
-        <Sidebar />
+        
         <div className="flex-grow p-5">
           {children}
         </div>

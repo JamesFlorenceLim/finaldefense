@@ -120,6 +120,7 @@ export default function Assign() {
       ));
       setShowAssignModal(false);
       alert('Assignment created successfully');
+      window.location.reload(); // Auto-update page
     } catch (error) {
       console.error('Failed to create assignment:', error);
       setErrorMessage('Failed to create assignment');
@@ -131,6 +132,7 @@ export default function Assign() {
       await axios.delete(`/api/schedule/${id}`);
       setSchedules(schedules.filter(schedule => schedule.id !== id));
       alert('Schedule removed successfully');
+      window.location.reload(); // Auto-update page
     } catch (error) {
       console.error('Failed to remove schedule:', error);
       alert('Failed to remove schedule');
@@ -160,6 +162,7 @@ export default function Assign() {
       setSchedules([...schedules, newSchedule]);
       setShowCreateModal(false);
       alert('Schedule created successfully');
+      window.location.reload(); // Auto-update page
     } catch (error) {
       console.error('Failed to create schedule:', error);
       alert('Failed to create schedule');

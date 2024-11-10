@@ -1,11 +1,10 @@
-import Schedule from '../dispatcher2/schedule/schedule';
+import Queue from '../dispatcher2/queue/Queue';
 
-const dispatcher2page = () => (
-  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-  
-
-    <Schedule />
+const Queuepage = () => (
+  <div>
+   
+    <Queue />
   </div>
 );
 
-export default dispatcher2page;
+export default Queuepage;
