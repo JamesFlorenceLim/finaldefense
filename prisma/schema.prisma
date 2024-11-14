@@ -61,25 +61,25 @@ model Driver {
 
 model Van {
   id                   Int                 @id @default(autoincrement())
-  mv_file_no           String              
+  mv_file_no           String?              
   plate_number         String              @unique
   engine_no            String              @unique
   chassis_no           String              @unique
-  denomination         String
-  piston_displacement  String
-  number_of_cylinders  Int
-  fuel                 String
-  make                 String
-  series               String
-  body_type            String
-  body_no              String
-  year_model           Int
-  gross_weight         Float
-  net_weight           Float
-  shipping_weight      Float
-  net_capacity         Float
-  year_last_registered Int
-  expiration_date      DateTime
+  denomination         String?
+  piston_displacement  String?
+  number_of_cylinders  Int?
+  fuel                 String?
+  make                 String?
+  series               String?
+  body_type            String?
+  body_no              String?
+  year_model           Int?
+  gross_weight         Float?
+  net_weight           Float?
+  shipping_weight      Float?
+  net_capacity         Float?
+  year_last_registered Int?
+  expiration_date      DateTime?
   archived             Boolean             @default(false)
   VanDriverOperator    VanDriverOperator[]
 }

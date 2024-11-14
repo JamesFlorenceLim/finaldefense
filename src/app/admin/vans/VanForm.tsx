@@ -39,7 +39,7 @@ const VanForm = () => {
 
   // Dropdown options
   const initialFuelOptions = ["Diesel", "Gasoline", "Electric", "Hybrid"];
-  const initialMakeOptions = ["Toyota", "Ford", "Honda", "Chevrolet"];
+  const initialMakeOptions = ["Toyota", "Nissan"];
   const initialBodyTypeOptions = ["Van", "Truck", "Sedan", "SUV"];
   const initialDenominationOptions = ["1.5L", "2.0L", "2.5L", "3.0L"];
   const initialPistonDisplacementOptions = ["1000cc", "1500cc", "2000cc", "2500cc"];
@@ -293,168 +293,131 @@ const VanForm = () => {
       {/* Register Modal */}
 <Modal isOpen={isRegisterModalOpen} onClose={handleRegisterModalClose} title="Register Modal">
 <form onSubmit={handleRegisterSubmit} className="p-6 bg-white rounded-lg">
-  <div className="grid sm:grid-cols-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-    
-    <div className="relative w-full max-w-xs ml-[-1.5rem] mt-[-1.5rem]">
-      <label htmlFor="mv_file_no" className="absolute text-gray-500 top-1 left-3 text-sm uppercase">MV File No.</label>
-      <input  type="text"  name="0"  value={van[0]}  onChange={handleRegisterChange}  required  style={{ height: '3.8rem', width: '13.8rem' }} className="block w-full px-3 pt-6 pb-2 border text-gray-900 border-black focus:outline-none text-right"  />
+  <div className="grid grid-cols-1 gap-4">
+    {/* <div>
+      <label htmlFor="mv_file_no">MV File No.</label>
+      <input type="text" name="0" value={van[0]} onChange={handleRegisterChange} className="w-full border p-2" />
+    </div> */}
+    <div>
+      <label htmlFor="plate_number">Plate Number</label>
+      <input type="text" name="1" value={van[1]} onChange={handleRegisterChange} className="w-full border p-2" />
     </div>
-
-    <div className="relative w-full max-w-xs mt-[-1.5rem]" style={{ marginLeft: '1.85rem', width: '14rem' }}>
-      <label htmlFor="plate_number" className="absolute text-gray-500 top-1 left-3 text-sm uppercase">Plate Number</label>
-      <input type="text"  name="1" value={van[1]}  onChange={handleRegisterChange}  required style={{ height: '3.8rem' }}  className="block w-full px-3 pt-6 pb-2 border text-gray-900 border-black focus:outline-none text-right" />
+    <div>
+      <label htmlFor="engine_no">Engine No</label>
+      <input type="text" name="2" value={van[2]} onChange={handleRegisterChange} className="w-full border p-2" />
     </div>
-
-    <div className="relative w-full max-w-xs mt-[-1.5rem]" style={{ marginLeft: '5.35rem', width: '14rem' }}>
-      <label htmlFor="engine_no" className="absolute text-gray-500 top-1 left-3 text-sm uppercase">Engine No</label>
-      <input type="text"  name="2" value={van[2]} onChange={handleRegisterChange}required  style={{ height: '3.8rem' }} className="block w-full px-3 pt-6 pb-2 border text-gray-900 border-black focus:outline-none text-right" />
+    <div>
+      <label htmlFor="chassis_no">Chassis No</label>
+      <input type="text" name="3" value={van[3]} onChange={handleRegisterChange} className="w-full border p-2" />
     </div>
-
-    <div className="relative w-full max-w-xs  mt-[-1.5rem] " style={{ marginLeft: '8.91rem', width: '13.5rem' }}>
-      <label htmlFor="chassis_no" className="absolute text-gray-500 top-1 left-3 text-sm uppercase ">Chassis No</label>
-      <input type="text" name="3" value={van[3]} onChange={handleRegisterChange}  required  style={{ height: '3.8rem' }}  className="block w-full px-3  pt-6 pb-2 border text-gray-900 border-black focus:outline-none text-right" />
-    </div>
-
-    <br />
-
-    <div className="relative w-full max-w-xs ml-[-1.5rem]" style={{ marginTop: '-0.1rem', width: '13.8rem' }}>
-              <label htmlFor="denomination" className="absolute text-gray-500 top-1 left-3 text-sm uppercase">Denomination</label>
-              <select name="4" value={van[4]} onChange={handleRegisterChange} required style={{ height: '3.8rem' }} className="block w-full text-sm text-center pt-6 pb-2 border text-gray-900 border-black focus:outline-none">
-                <option value="">Select Denomination</option>
-                {denominationOptions.map((option) => (
-                  <option key={option} value={option}>{option}</option>
-                ))}
-                <option value="other">Other</option>
-              </select>
-              {van[4] === "other" && (
-                <div className="mt-2">
-                  <input type="text" value={customOption} onChange={handleCustomOptionChange} placeholder="Enter new denomination" className="border px-2 py-1" />
-                  <button type="button" onClick={() => handleCustomOptionSave("denomination")} className="ml-2 px-2 py-1 bg-blue-500 text-white">Save</button>
-                </div>
-              )}
-            </div>
-
-
-            <div className="relative w-full max-w-xs" style={{ marginTop: '-0.1rem', marginLeft: '1.85rem', width: '14rem' }}>
-              <label htmlFor="piston_displacement" className="absolute text-gray-500 top-1 left-3 text-sm uppercase">Piston Displacement</label>
-              <select name="5" value={van[5]} onChange={handleRegisterChange} required style={{ height: '3.8rem' }} className="block w-full text-sm pt-6 pb-2 border text-center text-gray-900 border-black focus:outline-none">
-                <option value="">Select Piston Displacement</option>
-                {pistonDisplacementOptions.map((option) => (
-                  <option key={option} value={option}>{option}</option>
-                ))}
-                <option value="other">Other</option>
-              </select>
-              {van[5] === "other" && (
-                <div className="mt-2">
-                  <input type="text" value={customOption} onChange={handleCustomOptionChange} placeholder="Enter new piston displacement" className="border px-2 py-1" />
-                  <button type="button" onClick={() => handleCustomOptionSave("piston_displacement")} className="ml-2 px-2 py-1 bg-blue-500 text-white">Save</button>
-                </div>
-              )}
-            </div>
-
-    <div className="relative w-full max-w-xs" style={{ marginTop: '-0.1rem', marginLeft: '5.35rem', width: '14rem' }}>
-      <label htmlFor="number_of_cylinders" className="absolute text-gray-500 top-1 left-3 text-sm uppercase">Number of Cylinders</label>
-      <input type="number" name="6"  value={van[6]} onChange={handleRegisterChange} required style={{ height: '3.8rem' }} className="block w-full px-3 pt-6 pb-2 border text-gray-900 border-black focus:outline-none text-right" />
-    </div>
-
-    <div className="relative w-full max-w-xs" style={{ marginTop: '-0.1rem', marginLeft: '8.9rem', width: '13.5rem' }}>
-              <label htmlFor="fuel" className="absolute text-gray-500 top-1 left-3 text-sm uppercase">Fuel</label>
-              <select name="7" value={van[7]} onChange={handleRegisterChange} required style={{ height: '3.8rem' }} className="block w-full px-3 pt-6 pb-2 border text-gray-900 border-black focus:outline-none">
-                <option value="">Select Fuel</option>
-                {fuelOptions.map((option) => (
-                  <option key={option} value={option}>{option}</option>
-                ))}
-                <option value="other">Other</option>
-              </select>
-              {van[7] === "other" && (
-                <div className="mt-2">
-                  <input type="text" value={customOption} onChange={handleCustomOptionChange} placeholder="Enter new fuel type" className="border px-2 py-1" />
-                  <button type="button" onClick={() => handleCustomOptionSave("fuel")} className="ml-2 px-2 py-1 bg-blue-500 text-white">Save</button>
-                </div>
-              )}
-            </div>
-    <br />
-
-    <div className="relative w-full max-w-xs ml-[-1.5rem]" style={{ marginTop: '0.2rem', width: '13.8rem' }}>
-      <label htmlFor="make" className="absolute text-gray-500 top-1 left-3 text-sm uppercase">Make</label>
-      <select  name="8" value={van[8]} onChange={handleRegisterChange} required  style={{ height: '3.8rem' }} className="block w-full px-3 pt-6 pb-2 border text-black border-black focus:outline-none text-center">
-        <option value="">Select Make</option> {makeOptions.map((option) => ( <option key={option} value={option}>{option}</option> ))}
+    {/* <div>
+      <label htmlFor="denomination">Denomination</label>
+      <select name="4" value={van[4]} onChange={handleRegisterChange} className="w-full border p-2">
+        <option value="">Select Denomination</option>
+        {denominationOptions.map((option) => (
+          <option key={option} value={option}>{option}</option>
+        ))}
         <option value="other">Other</option>
       </select>
-      {van[8] === "other" && (
-        <div className="mt-2">
-          <input type="text" value={customOption} onChange={handleCustomOptionChange} placeholder="Enter new make" className="border px-2 py-1" />
-          <button type="button" onClick={() => handleCustomOptionSave("make")} className="ml-2 px-2 py-1 bg-blue-500 text-white">Save</button>
+      {van[4] === "other" && (
+        <div className="mt-2 flex">
+          <input type="text" value={customOption} onChange={handleCustomOptionChange} placeholder="Enter new denomination" className="border p-2 flex-grow" />
+          <button type="button" onClick={() => handleCustomOptionSave("denomination")} className="ml-2 p-2 bg-blue-500 text-white">Save</button>
         </div>
       )}
     </div>
-
-    <div className="relative w-full max-w-xs" style={{ marginTop: '0.2rem', marginLeft: '1.85rem', width: '14rem' }}>
-      <label htmlFor="series" className="absolute text-gray-500 top-1 left-3 text-sm uppercase">Series</label>
-      <input  type="text"  name="9" value={van[9]}  onChange={handleRegisterChange}  required  style={{ height: '3.8rem' }} className="block w-full px-3 pt-6 pb-2 border text-black border-black focus:outline-none text-right" />
+    <div>
+      <label htmlFor="piston_displacement">Piston Displacement</label>
+      <select name="5" value={van[5]} onChange={handleRegisterChange} className="w-full border p-2">
+        <option value="">Select Piston Displacement</option>
+        {pistonDisplacementOptions.map((option) => (
+          <option key={option} value={option}>{option}</option>
+        ))}
+        <option value="other">Other</option>
+      </select>
+      {van[5] === "other" && (
+        <div className="mt-2 flex">
+          <input type="text" value={customOption} onChange={handleCustomOptionChange} placeholder="Enter new piston displacement" className="border p-2 flex-grow" />
+          <button type="button" onClick={() => handleCustomOptionSave("piston_displacement")} className="ml-2 p-2 bg-blue-500 text-white">Save</button>
+        </div>
+      )}
     </div>
-
-    <div className="relative w-full max-w-xs" style={{ marginTop: '0.2rem', marginLeft: '5.35rem', width: '14rem' }}>
-      <label htmlFor="body_type" className="absolute text-gray-500 top-1 left-3 text-sm uppercase">Body Type</label>
-      <input  type="text"  name="10" value={van[10]}  onChange={handleRegisterChange}  required  style={{ height: '3.8rem' }} className="block w-full px-3 pt-6 pb-2 border text-black border-black focus:outline-none text-right" />
+    <div>
+      <label htmlFor="number_of_cylinders">Number of Cylinders</label>
+      <input type="number" name="6" value={van[6]} onChange={handleRegisterChange} className="w-full border p-2" />
     </div>
-
-    
-
-    <div className="relative w-full max-w-xs" style={{ marginTop: '0.2rem', marginLeft: '8.9rem', width: '7.1rem' }}>
-      <label htmlFor="body_no" className="absolute text-gray-500 top-1 left-3 text-sm uppercase">Body No.</label>
-      <input  type="text" name="11" value={van[11]} onChange={handleRegisterChange} required  style={{ height: '3.8rem' }} className="block w-full px-3 pt-6 pb-2 border text-black border-black focus:outline-none text-right" />
+    <div>
+      <label htmlFor="fuel">Fuel</label>
+      <select name="7" value={van[7]} onChange={handleRegisterChange} className="w-full border p-2">
+        <option value="">Select Fuel</option>
+        {fuelOptions.map((option) => (
+          <option key={option} value={option}>{option}</option>
+        ))}
+        <option value="other">Other</option>
+      </select>
+      {van[7] === "other" && (
+        <div className="mt-2 flex">
+          <input type="text" value={customOption} onChange={handleCustomOptionChange} placeholder="Enter new fuel type" className="border p-2 flex-grow" />
+          <button type="button" onClick={() => handleCustomOptionSave("fuel")} className="ml-2 p-2 bg-blue-500 text-white">Save</button>
+        </div>
+      )}
+    </div> */}
+    <div>
+      <label htmlFor="make">Make</label>
+      <select name="8" value={van[8]} onChange={handleRegisterChange} className="w-full border p-2">
+        <option value="">Select Make</option>
+        {makeOptions.map((option) => (
+          <option key={option} value={option}>{option}</option>
+        ))}
+        <option value="other">Other</option>
+      </select>
+      {van[8] === "other" && (
+        <div className="mt-2 flex">
+          <input type="text" value={customOption} onChange={handleCustomOptionChange} placeholder="Enter new make" className="border p-2 flex-grow" />
+          <button type="button" onClick={() => handleCustomOptionSave("make")} className="ml-2 p-2 bg-blue-500 text-white">Save</button>
+        </div>
+      )}
     </div>
-
-    <div className="relative w-full max-w-xs" style={{ marginTop: '0.2rem', marginLeft: '5.5rem', width: '6.45rem' }}>
-      <label htmlFor="year_model" className="absolute text-gray-500 top-1 left-2 text-sm uppercase">Year Model</label>
-      <input  type="text" name="12" value={van[12]}  onChange={handleRegisterChange}  required  style={{ height: '3.8rem' }} className="block w-full px-3 pt-6 pb-2 border text-black border-black focus:outline-none text-right" />
+    {/* <div>
+      <label htmlFor="series">Series</label>
+      <input type="text" name="9" value={van[9]} onChange={handleRegisterChange} className="w-full border p-2" />
     </div>
-    <br />
-
-
-    <div className="relative w-full max-w-xs ml-[-11.9rem]" style={{ marginTop: '-0.1rem', width: '13.8rem' }}>
-      <label htmlFor="gross_weight" className="absolute text-gray-500 top-1 left-2 text-sm uppercase">Gross Weight</label>
-      <input type="text"name="13"  value={van[13]}  onChange={handleRegisterChange} required style={{ height: '3.8rem' }} className="block w-full px-3 pt-6 pb-2 border text-black border-black focus:outline-none text-right" />
+    <div>
+      <label htmlFor="body_type">Body Type</label>
+      <input type="text" name="10" value={van[10]} onChange={handleRegisterChange} className="w-full border p-2" />
     </div>
-
-    <div className="relative w-full max-w-xs" style={{ marginTop: '-0.1rem', marginLeft: '-8.6rem', width: '14rem' }}>
-      <label htmlFor="net_weight" className="absolute text-gray-500 top-1 left-2 text-sm uppercase">Net Weight</label>
-      <input   type="text"  name="14" value={van[14]} onChange={handleRegisterChange} required  style={{ height: '3.8rem' }} className="block w-full px-3 pt-6 pb-2 border text-black border-black focus:outline-none text-right"/>
+    <div>
+      <label htmlFor="body_no">Body No.</label>
+      <input type="text" name="11" value={van[11]} onChange={handleRegisterChange} className="w-full border p-2" />
     </div>
-
-    <div className="relative w-full max-w-xs" style={{ marginTop: '-0.1rem', marginLeft: '-81px', width: '14rem' }}>
-      <label htmlFor="shipping_weight" className="absolute text-gray-500 top-1 left-2 text-sm uppercase">Shipping Weight</label>
-      <input  type="text"  name="15"  value={van[15]} onChange={handleRegisterChange} required style={{ height: '3.8rem' }}  className="block w-full px-3 pt-6 pb-2 border text-black border-black focus:outline-none text-right" />
+    <div>
+      <label htmlFor="year_model">Year Model</label>
+      <input type="text" name="12" value={van[12]} onChange={handleRegisterChange} className="w-full border p-2" />
     </div>
-
-    <div className="relative w-full max-w-xs" style={{ marginTop: '-0.1rem', marginLeft: '-24.5px', width: '13.5rem' }}>
-      <label htmlFor="net_capacity" className="absolute text-gray-500 top-1 left-2 text-sm uppercase">Net Capacity</label>
-      <input type="text"  name="16"  value={van[16]} onChange={handleRegisterChange}  required style={{ height: '3.8rem' }}  className="block w-full px-3 pt-6 pb-2 border text-black border-black focus:outline-none text-right" />
+    <div>
+      <label htmlFor="gross_weight">Gross Weight</label>
+      <input type="text" name="13" value={van[13]} onChange={handleRegisterChange} className="w-full border p-2" />
     </div>
-
-    <br />
-
-    <div className="relative w-full ml-[-11.9rem]" style={{ marginTop: '-0.1rem', width: '27.72rem' }}>
-  <label htmlFor="year_last_registered" className="absolute text-gray-500 top-1 left-2 text-sm uppercase">Year Last Registered</label>
-  <input
-    type="number"
-    name="17"
-    value={van[17]}
-    onChange={handleRegisterChange}
-    required
-    min="1900"
-    max={new Date().getFullYear()}
-    style={{ height: '3.8rem' }}
-    className="block w-full px-3 pt-6 pb-2 border text-black border-black focus:outline-none text-right"
-    placeholder="YYYY" maxLength={4}
-  />
-</div>
-
-    <div className="relative w-full" style={{ marginTop: '-0.1rem', width: '27.45rem', marginLeft: '5.35rem' }}>
-  <label htmlFor="expiration_date" className="absolute text-gray-500 top-1 left-2 text-sm uppercase">Expiration Date</label>
-  <input type="date" name="18" value={van[18]} onChange={handleRegisterChange} required style={{ height: '3.8rem' }} className="block w-full px-3 pt-6 pb-2 border text-black border-black focus:outline-none text-right" />
-</div>
+    <div>
+      <label htmlFor="net_weight">Net Weight</label>
+      <input type="text" name="14" value={van[14]} onChange={handleRegisterChange} className="w-full border p-2" />
+    </div>
+    <div>
+      <label htmlFor="shipping_weight">Shipping Weight</label>
+      <input type="text" name="15" value={van[15]} onChange={handleRegisterChange} className="w-full border p-2" />
+    </div>
+    <div>
+      <label htmlFor="net_capacity">Net Capacity</label>
+      <input type="text" name="16" value={van[16]} onChange={handleRegisterChange} className="w-full border p-2" />
+    </div>*/}
+    <div>
+      <label htmlFor="year_last_registered">Year Last Registered</label>
+      <input type="number" name="17" value={van[17]} onChange={handleRegisterChange} className="w-full border p-2" min="1900" max={new Date().getFullYear()} placeholder="YYYY" />
+    </div>
+    {/* <div>
+      <label htmlFor="expiration_date">Expiration Date</label>
+      <input type="date" name="18" value={van[18]} onChange={handleRegisterChange} className="w-full border p-2" />
+    </div>  */}
   </div>
   <button type="submit"
     className="text-white inline-flex items-center bg-emerald-500 hover:bg-emerald-600 focus:ring-4 focus:ring-green-500
@@ -480,15 +443,16 @@ const VanForm = () => {
       <table className="bg-white rounded-lg overflow-hidden" style={{ tableLayout: 'fixed', marginLeft: '220px' }}>
   <thead className="bg-blue-400 text-xs">
     <tr className="text-white">
-      <th className="px-4 py-2 w-32 text-left font-normal rounded-l-lg">MV File No</th>
+      {/* <th className="px-4 py-2 w-32 text-left font-normal rounded-l-lg">MV File No</th> */}
       <th className="px-4 py-2 w-32 text-left font-normal">Plate Number</th>
       <th className="px-4 py-2 w-32 text-left font-normal">Engine No</th>
       <th className="px-4 py-2 w-32 text-left font-normal">Chassis No</th>
-      <th className="px-4 py-2 w-32 text-left font-normal">Denomination</th>
+      {/* <th className="px-4 py-2 w-32 text-left font-normal">Denomination</th>
       <th className="px-4 py-2 w-40 text-left font-normal">Piston Displacement</th>
       <th className="px-4 py-2 w-40 text-left font-normal">Number of Cylinders</th>
-      <th className="px-4 py-2 w-32 text-left font-normal">Fuel</th>
+      <th className="px-4 py-2 w-32 text-left font-normal">Fuel</th> */}
       <th className="px-4 py-2 w-32 text-left font-normal">Make</th>
+      <th className="px-4 py-2 w-32 text-center font-normal">Year Last Registered</th>
       <th className="px-4 py-2 w-32 text-center font-normal rounded-r-lg">Actions</th>
     </tr>
   </thead>
@@ -502,15 +466,16 @@ const VanForm = () => {
     ) : (
       currentRows.map((v, index) => (
         <tr key={index} className="border-b">
-          <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>{v.mv_file_no}</td>
+          {/* <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>{v.mv_file_no}</td> */}
           <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>{v.plate_number}</td>
           <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>{v.engine_no}</td>
           <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>{v.chassis_no}</td>
-          <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>{v.denomination}</td>
+          {/* <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>{v.denomination}</td>
           <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>{v.piston_displacement}</td>
           <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>{v.number_of_cylinders}</td>
-          <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>{v.fuel}</td>
+          <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>{v.fuel}</td> */}
           <td className="px-4 py-2 uppercase" style={{ wordBreak: 'break-word' }}>{v.make}</td>
+          <td className="px-4 py-2 uppercase">{v.year_last_registered}</td>
           <td className="px-4 py-2 uppercase">
             <div className="flex gap-2">
               <button
@@ -613,112 +578,108 @@ const VanForm = () => {
 {isViewModalOpen && selectedVan && (
   <Modal isOpen={isViewModalOpen} onClose={handleViewModalClose} title={isEditMode ? "Edit Van" : "View Van"}>
     <form onSubmit={isEditMode ? handleViewSubmit : (e) => e.preventDefault()} className="p-6 bg-white rounded-lg">
-      <div className="grid sm:grid-cols-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-        <div className="relative w-full max-w-xs ml-[-1.5rem] mt-[-1.5rem]">
-          <label htmlFor="mv_file_no" className="absolute text-gray-500 top-1 left-3 text-sm uppercase">MV File No.</label>
-          <input type="text" name="mv_file_no" value={selectedVan.mv_file_no} onChange={handleViewChange} required style={{ height: '3.8rem', width: '13.8rem' }} className="block w-full px-3 pt-6 pb-2 border text-gray-900 border-black focus:outline-none text-right" disabled={!isEditMode} />
+      <div className="grid grid-cols-1 gap-4">
+        {/* <div>
+          <label htmlFor="mv_file_no">MV File No.</label>
+          <input type="text" name="mv_file_no" value={selectedVan.mv_file_no} onChange={handleViewChange} className="w-full border p-2" disabled={!isEditMode} />
+        </div> */}
+        <div>
+          <label htmlFor="plate_number">Plate Number</label>
+          <input type="text" name="plate_number" value={selectedVan.plate_number} onChange={handleViewChange} className="w-full border p-2" disabled={!isEditMode} />
         </div>
-        <div className="relative w-full max-w-xs mt-[-1.5rem]" style={{ marginLeft: '1.85rem', width: '14rem' }}>
-          <label htmlFor="plate_number" className="absolute text-gray-500 top-1 left-3 text-sm uppercase">Plate Number</label>
-          <input type="text" name="plate_number" value={selectedVan.plate_number} onChange={handleViewChange} required style={{ height: '3.8rem' }} className="block w-full px-3 pt-6 pb-2 border text-gray-900 border-black focus:outline-none text-right" disabled={!isEditMode} />
+        <div>
+          <label htmlFor="engine_no">Engine No</label>
+          <input type="text" name="engine_no" value={selectedVan.engine_no} onChange={handleViewChange} className="w-full border p-2" disabled={!isEditMode} />
         </div>
-        <div className="relative w-full max-w-xs mt-[-1.5rem]" style={{ marginLeft: '5.35rem', width: '14rem' }}>
-          <label htmlFor="engine_no" className="absolute text-gray-500 top-1 left-3 text-sm uppercase">Engine No</label>
-          <input type="text" name="engine_no" value={selectedVan.engine_no} onChange={handleViewChange} required style={{ height: '3.8rem' }} className="block w-full px-3 pt-6 pb-2 border text-gray-900 border-black focus:outline-none text-right" disabled={!isEditMode} />
+        <div>
+          <label htmlFor="chassis_no">Chassis No</label>
+          <input type="text" name="chassis_no" value={selectedVan.chassis_no} onChange={handleViewChange} className="w-full border p-2" disabled={!isEditMode} />
         </div>
-        <div className="relative w-full max-w-xs mt-[-1.5rem]" style={{ marginLeft: '8.91rem', width: '13.5rem' }}>
-          <label htmlFor="chassis_no" className="absolute text-gray-500 top-1 left-3 text-sm uppercase">Chassis No</label>
-          <input type="text" name="chassis_no" value={selectedVan.chassis_no} onChange={handleViewChange} required style={{ height: '3.8rem' }} className="block w-full px-3 pt-6 pb-2 border text-gray-900 border-black focus:outline-none text-right" disabled={!isEditMode} />
-        </div>
-        <br />
-        <div className="relative w-full max-w-xs ml-[-1.5rem]" style={{ marginTop: '-0.1rem', width: '13.8rem' }}>
-          <label htmlFor="denomination" className="absolute text-gray-500 top-1 left-3 text-sm uppercase">Denomination</label>
-          <select name="denomination" value={selectedVan.denomination} onChange={handleViewChange} required style={{ height: '3.8rem' }} className="block w-full text-sm text-center pt-6 pb-2 border text-gray-900 border-black focus:outline-none" disabled={!isEditMode}>
-            <option value="">Select Denomination</option>
-            {denominationOptions.map((option) => (
-              <option key={option} value={option}>{option}</option>
-            ))}
+        {/* <div>
+          <label htmlFor="denomination">Denomination</label>
+          <select name="denomination" value={selectedVan.denomination} onChange={handleViewChange} className="w-full border p-2" disabled={!isEditMode}>
+        <option value="">Select Denomination</option>
+        {denominationOptions.map((option) => (
+          <option key={option} value={option}>{option}</option>
+        ))}
           </select>
         </div>
-        <div className="relative w-full max-w-xs" style={{ marginTop: '-0.1rem', marginLeft: '1.85rem', width: '14rem' }}>
-          <label htmlFor="piston_displacement" className="absolute text-gray-500 top-1 left-3 text-sm uppercase">Piston Displacement</label>
-          <select name="piston_displacement" value={selectedVan.piston_displacement} onChange={handleViewChange} required style={{ height: '3.8rem' }} className="block w-full text-sm pt-6 pb-2 border text-center text-gray-900 border-black focus:outline-none" disabled={!isEditMode}>
-            <option value="">Select Piston Displacement</option>
-            {pistonDisplacementOptions.map((option) => (
-              <option key={option} value={option}>{option}</option>
-            ))}
+        <div>
+          <label htmlFor="piston_displacement">Piston Displacement</label>
+          <select name="piston_displacement" value={selectedVan.piston_displacement} onChange={handleViewChange} className="w-full border p-2" disabled={!isEditMode}>
+        <option value="">Select Piston Displacement</option>
+        {pistonDisplacementOptions.map((option) => (
+          <option key={option} value={option}>{option}</option>
+        ))}
           </select>
         </div>
-        <div className="relative w-full max-w-xs" style={{ marginTop: '-0.1rem', marginLeft: '5.35rem', width: '14rem' }}>
-          <label htmlFor="number_of_cylinders" className="absolute text-gray-500 top-1 left-3 text-sm uppercase">Number of Cylinders</label>
-          <input type="text" name="number_of_cylinders" value={selectedVan.number_of_cylinders} onChange={handleViewChange} required style={{ height: '3.8rem' }} className="block w-full px-3 pt-6 pb-2 border text-gray-900 border-black focus:outline-none text-right" disabled={!isEditMode} />
+        <div>
+          <label htmlFor="number_of_cylinders">Number of Cylinders</label>
+          <input type="text" name="number_of_cylinders" value={selectedVan.number_of_cylinders} onChange={handleViewChange} className="w-full border p-2" disabled={!isEditMode} />
         </div>
-        <div className="relative w-full max-w-xs" style={{ marginTop: '-0.1rem', marginLeft: '8.9rem', width: '13.5rem' }}>
-          <label htmlFor="fuel" className="absolute text-gray-500 top-1 left-3 text-sm uppercase">Fuel</label>
-          <select name="fuel" value={selectedVan.fuel} onChange={handleViewChange} required style={{ height: '3.8rem' }} className="block w-full px-3 pt-6 pb-2 border text-gray-900 border-black focus:outline-none" disabled={!isEditMode}>
-            <option value="">Select Fuel</option>
-            {fuelOptions.map((option) => (
-              <option key={option} value={option}>{option}</option>
-            ))}
+        <div>
+          <label htmlFor="fuel">Fuel</label>
+          <select name="fuel" value={selectedVan.fuel} onChange={handleViewChange} className="w-full border p-2" disabled={!isEditMode}>
+        <option value="">Select Fuel</option>
+        {fuelOptions.map((option) => (
+          <option key={option} value={option}>{option}</option>
+        ))}
+          </select>
+        </div> */}
+        <div>
+          <label htmlFor="make">Make</label>
+          <select name="make" value={selectedVan.make} onChange={handleViewChange} className="w-full border p-2" disabled={!isEditMode}>
+        <option value="">Select Make</option>
+        {makeOptions.map((option) => (
+          <option key={option} value={option}>{option}</option>
+        ))}
           </select>
         </div>
-        <br />
-        <div className="relative w-full max-w-xs ml-[-1.5rem]" style={{ marginTop: '0.2rem', width: '13.8rem' }}>
-          <label htmlFor="make" className="absolute text-gray-500 top-1 left-3 text-sm uppercase">Make</label>
-          <select name="make" value={selectedVan.make} onChange={handleViewChange} required style={{ height: '3.8rem' }} className="block w-full px-3 pt-6 pb-2 border text-black border-black focus:outline-none text-center" disabled={!isEditMode}>
-            <option value="">Select Make</option>
-            {makeOptions.map((option) => (
-              <option key={option} value={option}>{option}</option>
-            ))}
+        {/* <div>
+          <label htmlFor="series">Series</label>
+          <input type="text" name="series" value={selectedVan.series} onChange={handleViewChange} className="w-full border p-2" disabled={!isEditMode} />
+        </div>
+        <div>
+          <label htmlFor="body_type">Body Type</label>
+          <select name="body_type" value={selectedVan.body_type} onChange={handleViewChange} className="w-full border p-2" disabled={!isEditMode}>
+        <option value="">Select Body Type</option>
+        {bodyTypeOptions.map((option) => (
+          <option key={option} value={option}>{option}</option>
+        ))}
           </select>
         </div>
-        <div className="relative w-full max-w-xs" style={{ marginTop: '0.2rem', marginLeft: '1.85rem', width: '14rem' }}>
-          <label htmlFor="series" className="absolute text-gray-500 top-1 left-3 text-sm uppercase">Series</label>
-          <input type="text" name="series" value={selectedVan.series} onChange={handleViewChange} required style={{ height: '3.8rem' }} className="block w-full px-3 pt-6 pb-2 border text-black border-black focus:outline-none text-right" disabled={!isEditMode} />
+        <div>
+          <label htmlFor="body_no">Body No.</label>
+          <input type="text" name="body_no" value={selectedVan.body_no} onChange={handleViewChange} className="w-full border p-2" disabled={!isEditMode} />
         </div>
-        <div className="relative w-full max-w-xs" style={{ marginTop: '0.2rem', marginLeft: '5.35rem', width: '14rem' }}>
-          <label htmlFor="body_type" className="absolute text-gray-500 top-1 left-3 text-sm uppercase">Body Type</label>
-          <select name="body_type" value={selectedVan.body_type} onChange={handleViewChange} required style={{ height: '3.8rem' }} className="block w-full px-3 pt-6 pb-2 border text-black border-black focus:outline-none text-right" disabled={!isEditMode}>
-            <option value="">Select Body Type</option>
-            {bodyTypeOptions.map((option) => (
-              <option key={option} value={option}>{option}</option>
-            ))}
-          </select>
+        <div>
+          <label htmlFor="year_model">Year Model</label>
+          <input type="text" name="year_model" value={selectedVan.year_model} onChange={handleViewChange} className="w-full border p-2" disabled={!isEditMode} />
         </div>
-        <div className="relative w-full max-w-xs" style={{ marginTop: '0.2rem', marginLeft: '8.9rem', width: '7.1rem' }}>
-          <label htmlFor="body_no" className="absolute text-gray-500 top-1 left-3 text-sm uppercase">Body No.</label>
-          <input type="text" name="body_no" value={selectedVan.body_no} onChange={handleViewChange} required style={{ height: '3.8rem' }} className="block w-full px-3 pt-6 pb-2 border text-black border-black focus:outline-none text-right" disabled={!isEditMode} />
+        <div>
+          <label htmlFor="gross_weight">Gross Weight</label>
+          <input type="text" name="gross_weight" value={selectedVan.gross_weight} onChange={handleViewChange} className="w-full border p-2" disabled={!isEditMode} />
         </div>
-        <div className="relative w-full max-w-xs" style={{ marginTop: '0.2rem', marginLeft: '5.5rem', width: '6.45rem' }}>
-          <label htmlFor="year_model" className="absolute text-gray-500 top-1 left-2 text-sm uppercase">Year Model</label>
-          <input type="text" name="year_model" value={selectedVan.year_model} onChange={handleViewChange} required style={{ height: '3.8rem' }} className="block w-full px-3 pt-6 pb-2 border text-black border-black focus:outline-none text-right" disabled={!isEditMode} />
+        <div>
+          <label htmlFor="net_weight">Net Weight</label>
+          <input type="text" name="net_weight" value={selectedVan.net_weight} onChange={handleViewChange} className="w-full border p-2" disabled={!isEditMode} />
         </div>
-        <br />
-        <div className="relative w-full max-w-xs ml-[-11.9rem]" style={{ marginTop: '-0.1rem', width: '13.8rem' }}>
-          <label htmlFor="gross_weight" className="absolute text-gray-500 top-1 left-2 text-sm uppercase">Gross Weight</label>
-          <input type="text" name="gross_weight" value={selectedVan.gross_weight} onChange={handleViewChange} required style={{ height: '3.8rem' }} className="block w-full px-3 pt-6 pb-2 border text-black border-black focus:outline-none text-right" disabled={!isEditMode} />
+        <div>
+          <label htmlFor="shipping_weight">Shipping Weight</label>
+          <input type="text" name="shipping_weight" value={selectedVan.shipping_weight} onChange={handleViewChange} className="w-full border p-2" disabled={!isEditMode} />
         </div>
-        <div className="relative w-full max-w-xs" style={{ marginTop: '-0.1rem', marginLeft: '-8.6rem', width: '14rem' }}>
-          <label htmlFor="net_weight" className="absolute text-gray-500 top-1 left-2 text-sm uppercase">Net Weight</label>
-          <input type="text" name="net_weight" value={selectedVan.net_weight} onChange={handleViewChange} required style={{ height: '3.8rem' }} className="block w-full px-3 pt-6 pb-2 border text-black border-black focus:outline-none text-right" disabled={!isEditMode} />
+        <div>
+          <label htmlFor="net_capacity">Net Capacity</label>
+          <input type="text" name="net_capacity" value={selectedVan.net_capacity} onChange={handleViewChange} className="w-full border p-2" disabled={!isEditMode} />
+        </div> */}
+        <div>
+          <label htmlFor="year_last_registered">Year Last Registered</label>
+          <input type="number" name="year_last_registered" value={selectedVan.year_last_registered} onChange={handleViewChange} className="w-full border p-2" disabled={!isEditMode} />
         </div>
-        <div className="relative w-full max-w-xs" style={{ marginTop: '-0.1rem', marginLeft: '-81px', width: '14rem' }}>
-          <label htmlFor="shipping_weight" className="absolute text-gray-500 top-1 left-2 text-sm uppercase">Shipping Weight</label>
-          <input type="text" name="shipping_weight" value={selectedVan.shipping_weight} onChange={handleViewChange} required style={{ height: '3.8rem' }} className="block w-full px-3 pt-6 pb-2 border text-black border-black focus:outline-none text-right" disabled={!isEditMode} />
-        </div>
-        <div className="relative w-full max-w-xs" style={{ marginTop: '-0.1rem', marginLeft: '-24.5px', width: '13.5rem' }}>
-          <label htmlFor="net_capacity" className="absolute text-gray-500 top-1 left-2 text-sm uppercase">Net Capacity</label>
-          <input type="text" name="net_capacity" value={selectedVan.net_capacity} onChange={handleViewChange} required style={{ height: '3.8rem' }} className="block w-full px-3 pt-6 pb-2 border text-black border-black focus:outline-none text-right" disabled={!isEditMode} />
-        </div>
-        <br />
-        <div className="relative w-full ml-[-11.9rem]" style={{ marginTop: '-0.1rem', width: '27.72rem' }}>
-          <label htmlFor="year_last_registered" className="absolute text-gray-500 top-1 left-2 text-sm uppercase">Year Last Registered</label>
-          <input type="text" name="year_last_registered" value={selectedVan.year_last_registered} onChange={handleViewChange} required style={{ height: '3.8rem' }} className="block w-full px-3 pt-6 pb-2 border text-black border-black focus:outline-none text-right" disabled={!isEditMode} />
-        </div>
-        <div className="relative w-full" style={{ marginTop: '-0.1rem', width: '27.45rem', marginLeft: '5.35rem' }}>
-          <label htmlFor="expiration_date" className="absolute text-gray-500 top-1 left-2 text-sm uppercase">Expiration Date</label>
-          <input type="text" name="expiration_date" value={selectedVan.expiration_date} onChange={handleViewChange} required style={{ height: '3.8rem' }} className="block w-full px-3 pt-6 pb-2 border text-black border-black focus:outline-none text-right" disabled={!isEditMode} />
-        </div>
+        {/* <div>
+          <label htmlFor="expiration_date">Expiration Date</label>
+          <input type="text" name="expiration_date" value={selectedVan.expiration_date} onChange={handleViewChange} className="w-full border p-2" disabled={!isEditMode} />
+        </div> */}
       </div>
       {!isEditMode && (
         <button onClick={handleEdit} className="text-white inline-flex items-center bg-emerald-500 hover:bg-emerald-600 focus:ring-4 focus:ring-green-500 font-medium rounded-lg text-sm px-5 py-2.5 mt-7 text-center" style={{ marginLeft: '42rem' }}>

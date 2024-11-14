@@ -150,7 +150,7 @@ const Assignments = () => {
         <th className="px-4 py-2 text-left font-normal rounded-l-lg" >Select</th>
         <th className="px-4 py-2 text-left font-normal" >Plate Number</th>
         <th className="px-4 py-2 text-left font-normal" >Make</th>
-        <th className="px-4 py-2 text-left font-normal" >Model</th>
+        {/* <th className="px-4 py-2 text-left font-normal" >Model</th> */}
         <th className="px-4 py-2 text-left font-normal" >Driver</th>
         <th className="px-4 py-2 text-left font-normal" >Operator</th>
         <th className="px-4 py-2 text-center font-normal rounded-r-lg" >Actions</th>
@@ -184,7 +184,7 @@ const Assignments = () => {
               </td>
               <td className="px-4 py-2" style={{ wordBreak: 'break-word' }}>{van.plate_number}</td>
               <td className="px-4 py-2" style={{ wordBreak: 'break-word' }}>{van.make}</td>
-              <td className="px-4 py-2" style={{ wordBreak: 'break-word' }}>{van.series}</td>
+              {/* <td className="px-4 py-2" style={{ wordBreak: 'break-word' }}>{van.series}</td> */}
               <td className="px-4 py-2" style={{ wordBreak: 'break-word' }}>
                 <select
                   onChange={(e) => handleVanSelection(van.id, e.target.value)}

@@ -75,3 +75,35 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: 'Failed to create assignment', error: error.message }, { status: 500 });
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const url = new URL(req.url);
+    const vanDriverOperatorId = url.searchParams.get('vanDriverOperatorId');
+    const scheduleId = url.searchParams.get('scheduleId');
+
+    if (!vanDriverOperatorId || !scheduleId) {
+      return NextResponse.json({ message: 'vanDriverOperatorId and scheduleId are required' }, { status: 400 });
+    }
+
+    const assignment = await prisma.assignment.findFirst({
+      where: {
+        van_driver_operator_id: parseInt(vanDriverOperatorId as string, 10),
+        schedule_id: parseInt(scheduleId as string, 10),
+      },
+    });
+
+    if (!assignment) {
+      return NextResponse.json({ message: 'Assignment not found' }, { status: 404 });
+    }
+
+    await prisma.assignment.delete({
+      where: { id: assignment.id },
+    });
+
+    return NextResponse.json({ message: 'Assignment deleted successfully' }, { status: 200 });
+  } catch (error: any) {
+    console.error('Error deleting assignment:', error);
+    return NextResponse.json({ message: 'Failed to delete assignment', error: error.message }, { status: 500 });
+  }
+}

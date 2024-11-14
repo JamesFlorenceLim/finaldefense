@@ -4,8 +4,13 @@ import axios from 'axios';
 import WithAuth from '../withAuth';
 
 const fetchAssignments = async (status: string, terminal: string) => {
-  const response = await axios.get(`/api/scheduling?terminal=${terminal}&status=${status}`);
-  return response.data;
+  try {
+    const response = await axios.get(`/api/scheduling?terminal=${terminal}&status=${status}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching assignments:', error);
+    return [];
+  }
 };
 
 const updateAssignment = async (id: number, status: string, terminal: string, order?: number, arrivalTime?: string, departureTime?: string, queuedAt?: string) => {
